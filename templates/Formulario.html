@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Datos del Postulante</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+  <div class="page">
+    <div class="header">
+      <img class="header-img" src="/static/img/mml.png" alt="mml" id="logoAdmin">
+    </div>
+
+    <div class="card">
+      <div class="topline">
+        <div class="section-title">
+          Registro de Postulantes - CAS 2026 &nbsp; MML-OGA-OGRH
+        </div>
+      </div>
+
+      <div class="section-title">DATOS DEL POSTULANTE</div>
+
+      <!-- Barra de progreso -->
+      <div class="form-progress">
+        <div class="progress-bar-bg">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <span class="progress-text"><span id="progressCount">0</span>/12 campos completados</span>
+      </div>
+
+      <form id="formPostulante" novalidate>
+
+        <!-- NUEVO CAMPO: ÁREA -->
+        <div class="row">
+          <label>Área: <span style="color:#b00020;">*</span></label>
+          <select name="area" id="area" required>
+            <option value="" selected disabled>Seleccione un área</option>
+            <option value="GGRD">Gerencia de Gestión del Riesgo de Desastres</option>
+            <option value="GSCGA">Gerencia de Servicios a la Ciudad y Gestión Ambiental</option>
+            <option value="GFC">Gerencia de Fiscalización y Control</option>
+            <option value="GSC">Gerencia de Seguridad Ciudadana</option>
+            <option value="GDE">Gerencia de Desarrollo Económico</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <!-- CAMPO CONVOCATORIA (ahora dinámico) -->
+        <div class="row">
+          <label>Convocatoria: <span style="color:#b00020;">*</span></label>
+          <select name="convocatoria" id="convocatoria" required disabled>
+            <option value="" selected disabled>Primero seleccione un área</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <!-- ✅ CAMPO APELLIDOS (SEPARADO) -->
+        <div class="row">
+          <label>Apellidos: <span style="color:#b00020;">*</span></label>
+          <input
+            name="apellidos"
+            id="apellidos"
+            type="text"
+            placeholder="Ingrese sus apellidos completos"
+            required
+            minlength="3"
+            maxlength="100"
+            autocomplete="family-name"
+            style="text-transform: uppercase;"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <!-- ✅ CAMPO NOMBRES (SEPARADO) -->
+        <div class="row">
+          <label>Nombres: <span style="color:#b00020;">*</span></label>
+          <input
+            name="nombres"
+            id="nombres"
+            type="text"
+            placeholder="Ingrese sus nombres completos"
+            required
+            minlength="2"
+            maxlength="100"
+            autocomplete="given-name"
+            style="text-transform: uppercase;"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Tipo de Documento: <span style="color:#b00020;">*</span></label>
+          <select name="tipo_documento" id="tipo_documento" required>
+            <option value="" selected disabled>Seleccione tipo de documento</option>
+            <option value="DNI">DNI</option>
+            <option value="CE">Carnet de Extranjería</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>N° de Documento: <span style="color:#b00020;">*</span></label>
+          <input
+            name="numero_documento"
+            id="numero_documento"
+            type="text"
+            inputmode="numeric"
+            placeholder="Ingrese número de documento"
+            required
+            maxlength="8"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Fecha de Nacimiento: <span style="color:#b00020;">*</span></label>
+          <input 
+            name="fecha_nacimiento" 
+            id="fecha_nacimiento"
+            type="date" 
+            required 
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Sexo: <span style="color:#b00020;">*</span></label>
+          <select name="sexo" id="sexo" required>
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Celular: <span style="color:#b00020;">*</span></label>
+          <input
+            name="celular"
+            id="celular"
+            type="tel"
+            inputmode="tel"
+            placeholder="Ej: 987654321"
+            required
+            maxlength="9"
+            autocomplete="tel"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Correo Electrónico: <span style="color:#b00020;">*</span></label>
+          <input
+            name="correo"
+            id="correo"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            required
+            autocomplete="email"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>¿Pertenece a FF.AA.?:</label>
+          <select name="fuerzas_armadas" id="fuerzas_armadas">
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row">
+          <label>Personal con Discapacidad:</label>
+          <select name="tiene_discapacidad" id="tiene_discapacidad">
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </select>
+          <span class="error-message"></span>
+        </div>
+
+        <div class="row" id="row_tipo_discapacidad" style="display: none;">
+          <label>¿Qué discapacidad tiene?:</label>
+          <input
+            name="tipo_discapacidad"
+            id="tipo_discapacidad"
+            type="text"
+            placeholder="Especifique qué discapacidad tiene"
+            maxlength="100"
+            autocomplete="off"
+          />
+          <span class="error-message"></span>
+        </div>
+
+        <!-- Política de privacidad -->
+        <div class="privacy-row">
+          <input type="checkbox" id="privacidad" name="privacidad" required>
+          <label for="privacidad" class="privacy-label">
+            He leído y acepto la <a href="#" id="linkPrivacidad" target="_blank">Política de Privacidad y Protección de Datos Personales</a> <span style="color:#b00020;">*</span>
+          </label>
+          <span class="error-message privacy-error"></span>
+        </div>
+
+        <!-- Botón de envío -->
+        <button class="btn btn-primary" type="submit" id="btnSubmit">
+          <span class="btn-icon">📤</span>
+          Enviar Postulación
+        </button>
+
+        <div id="msg" class="msg" aria-live="polite"></div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- JavaScript externo -->
+  <script src="/static/app.js"></script>
+  
+  <!-- JavaScript para el selector dinámico de convocatorias -->
+  <script>
+    // Definir las convocatorias por área
+    const convocatoriasPorArea = {
+      'GGRD': [
+        'N°001-2026 SUPERVISOR (A) DE PREVENCIONISTA EN GESTIÓN DEL RIESGO DE DESASTRES',
+        'N°002-2026 PREVENCIONISTA EN GESTIÓN DEL RIESGO DE DESASTRES',
+        'N°003-2026 NOTIFICADOR (A)',
+        'N°004-2026 CHOFER',
+        'N°005-2026 ESPECIALISTA DE CAMPO EN PREVENCIÓN, REDUCCIÓN Y RECONSTRUCCIÓN',
+        'N°006-2026 ESPECIALISTA DE CAMPO EN PREPARACIÓN Y PREVENCIÓN',
+        'N°007-2026 ENCARGADO DE FLOTA VEHÍCULAR',
+        'N°008-2026 CAPACITADOR EN DEFENSA CIVIL',
+        'N°009-2026 OPERADOR DEL MÓDULO DE COMUNICACIONES DEL CENTRO DE OPERACIONES DE EMERGENCIA REGIONAL',
+        'N°010-2026 OPERADOR DEL MÓDULO DE OPERACIONES DEL CENTRO DE OPERACIONES DE EMERGENCIA REGIONAL',
+        'N°011-2026 OPERADOR DEL MÓDULO DE MONITOREO Y ANÁLISIS DEL CENTRO DE OPERACIONES DE EMERGENCIA REGIONAL',
+        'N°012-2026 INGENIERO CIVIL',
+        'N°013-2026 INSPECTOR TÉCNICO DE SEGURIDAD EN EDIFICACIONES'
+      ],
+      'GSCGA': [
+        'N°014-2026 OPERARIO DE BARRIDO',
+        'N°015-2026 OPERARIOS DE RECOLECCION DE RESIDUOS SOLIDOS',
+        'N°016-2026 AYUDANTES DE CONSTRUCCIÓN',
+        'N°017-2026 AYUDANTES DE TECNICO ELECTRICISTA',
+        'N°018-2026 OPERARIOS DE APOYO DE JARDINERÍA',
+        'N°019-2026 PODADOR DE ARBOLES'
+      ],
+      'GFC': [
+        'N°020-2026 INSPECTOR MUNICIPAL',
+        'N°021-2026 INSPECTOR DE GIR',
+        'N°022-2026 SUPERVISOR DE CAMPO'
+      ],
+      'GSC': [
+        'N°023-2026 SERENO A PIE',
+        'N°024-2026 OPERADOR(A) DE CAMARAS DE VIDEOVIGILANCIA',
+        'N°025-2026 SERENO TACTICO - UNOES',
+        'N°026-2026 SERENO MOTORIZADO',
+        'N°027-2026 SERENO CHOFER',
+        'N°028-2026 SUPERVISOR(A) CECOP',
+        'N°029-2026 SUPERVISOR(A)',
+        'N°030-2026 INGENIERO ELECTRÓNICO'
+      ],
+      'GDE': [
+        'N°031-2026 APOYO OPERATIVO',
+        'N°032-2026 AUXILIAR AUDIOVISUAL',
+        'N°033-2026 AUXILIAR DE TRABAJOS DE CAMPO',
+        'N°034-2026 CHOFER',
+        'N°035-2026 COORDINADOR AUDIOVISUAL',
+        'N°036-2026 COORDINADOR DE CAMPO',
+        'N°037-2026 COORDINADOR TÉCNICO DE CAMPO',
+        'N°038-2026 GUARDIÁN',
+        'N°039-2026 GUIA TURÍSTICO 1',
+        'N°040-2026 GUIA TURÍSTICO 2',
+        'N°041-2026 INSPECTOR DE RECOJO DE INFORMACIÓN DE CAMPO',
+        'N°042-2026 NOTIFICADOR',
+        'N°043-2026 OPERARIO DE MANTENIMIENTO DE INFRAESTRUCTURA',
+        'N°044-2026 OPERARIO DE MANTENIMIENTO Y LIMPIEZA DE INMUEBLES',
+        'N°045-2026 OPERARIO DE PARQUEO VEHICULAR',
+        'N°046-2026 OPERARIO DE LIMPIEZA Y COBRANZA DE BAÑOS PÚBLICOS',
+        'N°047-2026 ORIENTADORES',
+        'N°048-2026 SUPERVISOR DE ACTIVIDADES DE CAMPO',
+        'N°049-2026 SUPERVISOR DE TRABAJO DE CAMPO',
+        'N°050-2026 SUPERVISOR TÉCNICO'
+      ]
+    };
+
+    // Obtener elementos del DOM
+    const selectArea = document.getElementById('area');
+    const selectConvocatoria = document.getElementById('convocatoria');
+
+    // Agregar event listener al campo Área
+    selectArea.addEventListener('change', function() {
+      const areaSeleccionada = this.value;
+      
+      // Limpiar el select de convocatoria
+      selectConvocatoria.innerHTML = '<option value="" selected disabled>Seleccione una convocatoria</option>';
+      
+      // Si hay un área seleccionada, cargar sus convocatorias
+      if (areaSeleccionada && convocatoriasPorArea[areaSeleccionada]) {
+        // Habilitar el select
+        selectConvocatoria.disabled = false;
+        
+        // Agregar las opciones correspondientes
+        convocatoriasPorArea[areaSeleccionada].forEach(convocatoria => {
+          const option = document.createElement('option');
+          option.value = convocatoria;
+          option.textContent = convocatoria;
+          selectConvocatoria.appendChild(option);
+        });
+      } else {
+        // Deshabilitar el select si no hay área seleccionada
+        selectConvocatoria.disabled = true;
+      }
+      
+      // Resetear el valor seleccionado
+      selectConvocatoria.value = '';
+    });
+  </script>
+</body>
+</html>

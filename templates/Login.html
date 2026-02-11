@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Acceso Administrativo - Municipalidad de Lima</title>
+  <link rel="icon" href="/static/img/favicon.ico">
+
+  <style>
+    /* Reset básico */
+    *{ 
+      box-sizing: border-box; 
+    }
+    
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    /* Fondo con imagen de Lima */
+    body{ 
+      margin: 0; 
+      font-family: Arial, Helvetica, sans-serif;
+      background-image: url('/static/img/bg-login.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Overlay sutil para mejor contraste - ajustado para no ocultar mucho la imagen */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 30, 80, 0.50) 0%,
+        rgba(0, 30, 80, 0.35) 50%,
+        rgba(0, 30, 80, 0.50) 100%
+      );
+      z-index: 0;
+    }
+
+    /* Layout principal */
+    .page{
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header{
+      width: 100%;
+      max-width: 380px;
+      background: linear-gradient(135deg, #003f8f 0%, #0052b8 100%);
+      padding: 16px 14px;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .header-img{ 
+      height: 52px;
+      max-width: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+    }
+
+    /* Card */
+    .card{
+      width: 100%;
+      max-width: 380px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-top: none;
+      padding: 20px 16px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .section-title{
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0 16px;
+      color: #003f8f;
+      letter-spacing: 0.5px;
+    }
+
+    /* Form rows - Mobile first (vertical) */
+    .row{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    label{ 
+      font-size: 12px; 
+      color: #333;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Input wrapper */
+    .input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    /* Inputs - Touch friendly */
+    input{
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #b9c0cc;
+      border-radius: 4px;
+      font-size: 16px; /* Previene zoom en móviles */
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: #fff;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #003f8f;
+      box-shadow: 0 0 0 3px rgba(0, 63, 143, 0.12);
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    /* Password toggle */
+    .password-toggle {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: #5b5f66;
+      font-size: 18px;
+      line-height: 1;
+      min-width: 40px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .password-toggle:hover,
+    .password-toggle:focus {
+      color: #003f8f;
+      outline: none;
+    }
+
+    input[type="password"] {
+      padding-right: 48px;
+    }
+
+    /* Botón */
+    .btn{
+      width: 100%;
+      max-width: 140px;
+      margin: 20px auto 0;
+      display: block;
+      background: linear-gradient(135deg, #003f8f 0%, #0052b8 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.2s;
+      min-height: 48px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      box-shadow: 0 3px 10px rgba(0, 63, 143, 0.3);
+      letter-spacing: 0.5px;
+    }
+    
+    .btn:hover{ 
+      background: linear-gradient(135deg, #002d6b 0%, #003f8f 100%);
+      box-shadow: 0 5px 15px rgba(0, 63, 143, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0, 63, 143, 0.3);
+    }
+
+    .btn:focus {
+      outline: 2px solid #003f8f;
+      outline-offset: 2px;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #5b5f66;
+      transform: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Mensajes */
+    .msg{
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 18px;
+      border-radius: 3px;
+    }
+    
+    .msg.err{ 
+      color: #b00020; 
+      font-weight: 600;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    
+    .msg.ok{ 
+      color: #0a7a2f; 
+      font-weight: 600;
+      background-color: #f0fdf4;
+      border: 1px solid #86efac;
+    }
+
+    /* ============================================
+       RESPONSIVE: Tablets y arriba (600px+)
+       ============================================ */
+    @media (min-width: 600px) {
+      .row {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      
+      label {
+        text-align: right;
+        font-size: 13px;
+      }
+
+      input {
+        font-size: 14px; /* Tamaño legible en desktop */
+      }
+
+      .header {
+        max-width: 420px;
+      }
+
+      .card {
+        max-width: 420px;
+        padding: 24px 20px;
+      }
+    }
+
+    /* Tablets grandes y laptops */
+    @media (min-width: 768px) {
+      .header-img {
+        height: 56px;
+      }
+
+      .section-title {
+        font-size: 14px;
+      }
+    }
+
+    /* Landscape en móviles */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .page {
+        padding: 10px;
+        justify-content: flex-start;
+      }
+
+      .header {
+        padding: 10px 12px;
+      }
+
+      .header-img {
+        height: 40px;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .row {
+        margin: 8px 0;
+      }
+    }
+
+    /* Móviles muy pequeños */
+    @media (max-width: 360px) {
+      .page {
+        padding: 12px;
+      }
+
+      .header {
+        padding: 12px 10px;
+      }
+
+      .card {
+        padding: 14px 12px;
+      }
+
+      input {
+        padding: 9px 10px;
+      }
+
+      .btn {
+        max-width: 130px;
+        font-size: 14px;
+      }
+    }
+
+    /* Responsive background for mobile */
+    @media (max-width: 768px) {
+      body {
+        background-attachment: scroll;
+        background-size: cover;
+      }
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="header">
+      <img class="header-img" src="/static/img/mml.png" alt="Logo MML">
+    </div>
+
+    <div class="card">
+      <div class="section-title">ACCESO ADMINISTRATIVO</div>
+
+      {% if error %}
+        <div class="msg err" role="alert" aria-live="polite">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" novalidate id="loginForm">
+        
+        <div class="row">
+          <label for="usuario">Usuario:</label>
+          <input 
+            id="usuario"
+            name="usuario" 
+            type="text" 
+            placeholder="Ingrese usuario" 
+            autocomplete="username"
+            required
+            aria-required="true">
+        </div>
+
+        <div class="row">
+          <label for="password">Contraseña:</label>
+          <div class="input-wrapper">
+            <input 
+              id="password"
+              name="password" 
+              type="password" 
+              placeholder="Ingrese contraseña" 
+              autocomplete="current-password"
+              required
+              aria-required="true">
+            <button 
+              type="button" 
+              class="password-toggle" 
+              aria-label="Mostrar contraseña"
+              id="togglePassword">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <button class="btn" type="submit" id="submitBtn">Ingresar</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    // Toggle mostrar/ocultar contraseña
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Cambiar el icono
+      this.textContent = type === 'password' ? '👁️' : '🙈';
+      
+      // Actualizar aria-label
+      this.setAttribute('aria-label', type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña');
+    });
+
+    // Prevenir envíos duplicados
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    loginForm.addEventListener('submit', function(e) {
+      // Deshabilitar botón para evitar doble submit
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Ingresando...';
+      
+      // Re-habilitar después de 3 segundos por si hay error de validación
+      setTimeout(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Ingresar';
+      }, 3000);
+    });
+
+    // Focus automático en el campo usuario al cargar
+    window.addEventListener('load', function() {
+      document.getElementById('usuario').focus();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel Usuario</title>
+
+  <style>
+    :root{
+      --blue:#003f8f;
+      --blue-2:#0a56b5;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --border:#d7dbe2;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --danger:#b00020;
+      --success:#0f9d58;
+      --shadow: 0 10px 22px rgba(0,0,0,.08);
+      --radius: 12px;
+    }
+
+    *{ box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body{ margin:0; background:var(--bg); color:var(--text); overflow-x: hidden; }
+
+    .topbar{
+      width:100%;
+      background:var(--blue);
+      padding:14px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:#fff;
+      position:sticky;
+      top:0;
+      z-index:10;
+      box-shadow:0 6px 16px rgba(0,0,0,.12);
+    }
+    .topbar-left{ display:flex; align-items:center; gap:14px; }
+    .topbar img{ height:44px; }
+    .topbar-info{ font-size:12px; line-height:1.3; }
+
+    .btn{
+      height:34px;
+      padding:0 12px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-size:11px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition: all 0.2s;
+    }
+    .btn:hover:not(:disabled){ 
+      transform: translateY(-1px); 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+    }
+    .btn-danger{ background:var(--danger); color:#fff; }
+    .btn-success{ background:var(--success); color:#fff; }
+
+    .container{
+      max-width:1400px;
+      margin:18px auto;
+      padding:0 18px;
+    }
+    .panel{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .header-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .title{
+      font-size:18px;
+      font-weight:800;
+      margin:0;
+    }
+    .badge{
+      margin-left:10px;
+      padding:4px 10px;
+      background:#eaf2ff;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      color:var(--blue-2);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .input, .select{
+      height:36px;
+      padding:0 10px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      font-size:12px;
+      outline:none;
+    }
+
+    /* ✅ SCROLL MEJORADO */
+    .table-wrap{
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:auto;
+      position: relative;
+      /* Mantener scroll horizontal visible */
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue-2) #e5e7eb;
+    }
+
+    /* Estilos personalizados de scrollbar para Webkit (Chrome, Safari) */
+    .table-wrap::-webkit-scrollbar {
+      height: 10px;
+      width: 10px;
+    }
+
+    .table-wrap::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: var(--blue-2);
+      border-radius: 10px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: var(--blue);
+    }
+
+    table{
+      width:100%;
+      min-width:1600px;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:12px;
+    }
+    thead th{
+      background:#f8fafc;
+      padding:10px;
+      font-weight:800;
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tbody td{
+      padding:10px;
+      border-bottom:1px solid #eef2f7;
+      white-space:nowrap;
+    }
+
+    .empty{
+      text-align:center;
+      padding:18px;
+      color:var(--muted);
+    }
+    .actions{ display:flex; gap:6px; }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    .modal-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 24px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .modal-footer {
+      padding: 16px 24px 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-btn-cancel {
+      background: #f3f4f6;
+      color: var(--text);
+    }
+
+    .modal-btn-confirm {
+      background: var(--blue);
+      color: white;
+    }
+
+    .modal-btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .modal-btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 28px;
+    }
+
+    .modal-icon.success {
+      background: #e6f4ea;
+      color: var(--success);
+    }
+
+    .modal-icon.error {
+      background: #fdecea;
+      color: var(--danger);
+    }
+
+    .modal-icon.warning {
+      background: #fff4e5;
+      color: #f59e0b;
+    }
+
+    .modal-icon.info {
+      background: #eaf2ff;
+      color: var(--blue-2);
+    }
+
+    /* Animación para filas eliminadas */
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+    }
+
+    .removing {
+      animation: slideOut 0.3s ease-out;
+    }
+
+    /* ✅ NUEVAS ANIMACIONES */
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+    }
+    
+    .new-postulante {
+      background: #f0fdf4 !important;
+    }
+    
+    .new-row-animate {
+      animation: highlightNew 2s ease-out;
+    }
+    
+    @keyframes highlightNew {
+      0% {
+        background: #bbf7d0;
+      }
+      100% {
+        background: transparent;
+      }
+    }
+
+    /* ✅ Indicador de carga */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--blue);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ============================================ */
+    /* 📱 RESPONSIVE DESIGN - MEDIA QUERIES */
+    /* ============================================ */
+
+    /* TABLETS Y DISPOSITIVOS MEDIANOS (hasta 1024px) */
+    @media (max-width: 1024px) {
+      .container {
+        padding: 0 12px;
+        margin: 12px auto;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .title {
+        font-size: 16px;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+
+      .controls {
+        width: 100%;
+      }
+
+      .input, .select {
+        flex: 1;
+        min-width: 120px;
+      }
+    }
+
+    /* MÓVILES (hasta 768px) */
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+      }
+
+      .topbar img {
+        height: 36px;
+      }
+
+      .topbar-info {
+        font-size: 10px;
+      }
+
+      .topbar-left {
+        gap: 8px;
+      }
+
+      .btn {
+        height: 30px;
+        padding: 0 10px;
+        font-size: 10px;
+        gap: 4px;
+      }
+
+      .container {
+        margin: 8px auto;
+        padding: 0 8px;
+      }
+
+      .panel {
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .title {
+        font-size: 15px;
+        width: 100%;
+      }
+
+      .badge {
+        font-size: 10px;
+        padding: 3px 7px;
+        margin-left: 6px;
+      }
+
+      .controls {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input, .select {
+        width: 100%;
+        height: 34px;
+        font-size: 11px;
+      }
+
+      /* Tablas */
+      .table-wrap {
+        border-radius: 8px;
+      }
+
+      table {
+        font-size: 10px;
+        min-width: 1400px;
+      }
+
+      thead th {
+        padding: 8px 6px;
+        font-size: 10px;
+      }
+
+      tbody td {
+        padding: 8px 6px;
+      }
+
+      .actions {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .actions .btn {
+        width: 100%;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      /* Modal */
+      .modal {
+        width: 95%;
+        max-width: 100%;
+      }
+
+      .modal-header {
+        padding: 16px 16px 12px;
+      }
+
+      .modal-title {
+        font-size: 16px;
+      }
+
+      .modal-body {
+        padding: 16px;
+        font-size: 13px;
+      }
+
+      .modal-footer {
+        padding: 12px 16px 16px;
+        flex-direction: column-reverse;
+      }
+
+      .modal-btn {
+        width: 100%;
+        padding: 12px;
+      }
+
+      .modal-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+      }
+
+      /* Loading overlay */
+      .spinner {
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    /* MÓVILES PEQUEÑOS (hasta 480px) */
+    @media (max-width: 480px) {
+      .topbar {
+        padding: 8px 10px;
+      }
+
+      .topbar img {
+        height: 32px;
+      }
+
+      .topbar-info {
+        font-size: 9px;
+      }
+
+      .topbar-info div {
+        display: none;
+      }
+
+      .topbar-info div:first-child {
+        display: block;
+      }
+
+      .btn {
+        height: 28px;
+        padding: 0 8px;
+        font-size: 9px;
+        gap: 3px;
+      }
+
+      .container {
+        padding: 0 6px;
+        margin: 6px auto;
+      }
+
+      .panel {
+        padding: 8px;
+      }
+
+      .title {
+        font-size: 14px;
+      }
+
+      .badge {
+        font-size: 9px;
+        padding: 2px 6px;
+        margin-left: 5px;
+      }
+
+      .input, .select {
+        height: 32px;
+        font-size: 10px;
+        padding: 0 8px;
+      }
+
+      table {
+        font-size: 9px;
+      }
+
+      thead th {
+        padding: 6px 4px;
+        font-size: 9px;
+      }
+
+      tbody td {
+        padding: 6px 4px;
+      }
+
+      .actions {
+        gap: 3px;
+      }
+
+      .actions .btn {
+        height: 26px;
+        font-size: 9px;
+        padding: 0 6px;
+      }
+
+      .empty {
+        padding: 12px;
+        font-size: 11px;
+      }
+
+      .modal-title {
+        font-size: 14px;
+      }
+
+      .modal-body {
+        font-size: 12px;
+        padding: 12px;
+      }
+
+      .modal-btn {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .spinner {
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+      }
+    }
+
+    /* LANDSCAPE MODE (celulares en horizontal) */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .topbar {
+        position: relative;
+      }
+
+      .modal {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+      }
+    }
+
+    /* AJUSTES ESPECÍFICOS PARA BOTONES EN MÓVILES */
+    @media (max-width: 768px) {
+      .actions .btn-success,
+      .actions .btn-danger {
+        min-width: 90px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .actions .btn-success,
+      .actions .btn-danger {
+        min-width: 80px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="/static/img/mml.png">
+    <div class="topbar-info">
+      <div><strong>Usuario:</strong> {{ usuario or "Usuario" }}</div>
+      <div id="datetime"></div>
+    </div>
+  </div>
+  <a href="/logout" class="btn btn-danger">🚪 Cerrar sesión</a>
+</div>
+
+<div class="container">
+  <div class="panel">
+
+    <div class="header-row">
+      <h1 class="title">
+        Postulaciones pendientes
+        <span class="badge" id="badgeCount">
+          {{ postulantes|length if postulantes else 0 }} pendientes
+        </span>
+      </h1>
+
+      <div class="controls">
+        <input id="searchInput" class="input" placeholder="🔍 Buscar...">
+        <select id="sexoFilter" class="select">
+          <option value="">Sexo: Todos</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Femenino">Femenino</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap" id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Área</th>
+            <th>Convocatoria</th>
+            <th>Apellidos</th>
+            <th>Nombres</th>
+            <th>Tipo Doc</th>
+            <th>N° Doc</th>
+            <th>Fecha Nacimiento</th>
+            <th>Sexo</th>
+            <th>Celular</th>
+            <th>Correo</th>
+            <th>FF.AA.</th>
+            <th>Discapacidad</th>
+            <th>Tipo Discapacidad</th>
+            <th>Fecha Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          {% if postulantes %}
+            {% for p in postulantes %}
+            <tr class="row" data-id="{{ p.id }}">
+              <td class="td-num">{{ loop.index }}</td>
+              <td class="area">{{ p.area or '-' }}</td>
+              <td class="convocatoria">{{ p.convocatoria }}</td>
+              <td class="apellidos">{{ p.apellidos }}</td>
+              <td class="nombres">{{ p.nombres }}</td>
+              <td class="tipo-doc">{{ p.tipo_documento }}</td>
+              <td class="num-doc">{{ p.numero_documento }}</td>
+              <td class="fecha-nac">{{ p.fecha_nacimiento }}</td>
+              <td class="sexo">{{ p.sexo }}</td>
+              <td class="celular">{{ p.celular }}</td>
+              <td class="correo">{{ p.correo }}</td>
+              <td class="fuerzas-armadas">{{ p.fuerzas_armadas or '-' }}</td>
+              <td class="tiene-discapacidad">{{ p.tiene_discapacidad or '-' }}</td>
+              <td class="tipo-discapacidad">{{ p.tipo_discapacidad or '-' }}</td>
+              <td class="created">{{ p.created_at }}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-success js-recibir" data-id="{{ p.id }}">📥 Recibir</button>
+                  <button class="btn btn-danger js-del" data-id="{{ p.id }}">🗑️ Eliminar</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr id="emptyRow">
+              <td colspan="15" class="empty">✅ No hay postulantes pendientes</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL GENÉRICO -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Título</h3>
+    </div>
+    <div class="modal-body" id="modalBody">
+      Mensaje
+    </div>
+    <div class="modal-footer" id="modalFooter">
+      <!-- Botones se insertan dinámicamente -->
+    </div>
+  </div>
+</div>
+
+<!-- ✅ LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
+<script>
+  function updateDateTime(){
+    document.getElementById("datetime").textContent =
+      new Date().toLocaleString("es-PE");
+  }
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+</script>
+
+<script>
+// ✅ ==========================================
+// SCROLL HORIZONTAL CON RUEDA DEL MOUSE
+// ==========================================
+const tableWrap = document.getElementById('tableWrap');
+
+tableWrap.addEventListener('wheel', (e) => {
+  // Si hay scroll horizontal disponible
+  if (tableWrap.scrollWidth > tableWrap.clientWidth) {
+    e.preventDefault();
+    tableWrap.scrollLeft += e.deltaY;
+  }
+});
+</script>
+
+<script>
+// ==========================================
+// SISTEMA DE MODALES
+// ==========================================
+const modalOverlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalFooter = document.getElementById('modalFooter');
+
+function showModal(config) {
+  return new Promise((resolve) => {
+    modalTitle.textContent = config.title || 'Aviso';
+    
+    let bodyHTML = '';
+    if (config.icon) {
+      const iconClass = config.type || 'info';
+      const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+      };
+      bodyHTML += `<div class="modal-icon ${iconClass}">${icons[iconClass] || icons.info}</div>`;
+    }
+    bodyHTML += `<div style="text-align:center">${config.message || ''}</div>`;
+    modalBody.innerHTML = bodyHTML;
+    
+    modalFooter.innerHTML = '';
+    
+    if (config.type === 'confirm') {
+      const btnCancel = document.createElement('button');
+      btnCancel.className = 'modal-btn modal-btn-cancel';
+      btnCancel.textContent = config.cancelText || 'Cancelar';
+      btnCancel.onclick = () => {
+        closeModal();
+        resolve(false);
+      };
+      
+      const btnConfirm = document.createElement('button');
+      btnConfirm.className = `modal-btn modal-btn-${config.confirmClass || 'confirm'}`;
+      btnConfirm.textContent = config.confirmText || 'Aceptar';
+      btnConfirm.onclick = () => {
+        closeModal();
+        resolve(true);
+      };
+      
+      modalFooter.appendChild(btnCancel);
+      modalFooter.appendChild(btnConfirm);
+    } else {
+      const btnOk = document.createElement('button');
+      btnOk.className = 'modal-btn modal-btn-confirm';
+      btnOk.textContent = 'Aceptar';
+      btnOk.onclick = () => {
+        closeModal();
+        resolve(true);
+      };
+      modalFooter.appendChild(btnOk);
+    }
+    
+    modalOverlay.classList.add('active');
+  });
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('active');
+}
+
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) {
+    closeModal();
+  }
+});
+</script>
+
+<script>
+// ✅ ==========================================
+// FUNCIONALIDAD: RECIBIR POSTULANTE (MEJORADA)
+// ==========================================
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('js-recibir')) {
+    const btn = e.target;
+    const id = btn.dataset.id;
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    
+    // Verificar que la fila aún existe
+    if (!row) {
+      await showModal({
+        title: 'Error',
+        message: 'Este postulante ya no está disponible.',
+        icon: true,
+        type: 'error'
+      });
+      return;
+    }
+    
+    const nombre = row.querySelector('.apellidos').textContent;
+    
+    const confirmed = await showModal({
+      title: '¿Recibir postulante?',
+      message: `¿Confirmas que has recibido la documentación de <strong>${nombre}</strong>?`,
+      icon: true,
+      type: 'confirm',
+      confirmText: 'Sí, recibir',
+      cancelText: 'Cancelar',
+      confirmClass: 'success'
+    });
+    
+    if (!confirmed) return;
+    
+    // ✅ Mostrar loading
+    document.getElementById('loadingOverlay').classList.add('active');
+    
+    try {
+      const res = await fetch('/api/recibir-postulante', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      
+      const data = await res.json();
+      
+      // ✅ Ocultar loading
+      document.getElementById('loadingOverlay').classList.remove('active');
+      
+      if (data.ok) {
+        // ✅ Animar y eliminar fila INMEDIATAMENTE
+        row.classList.add('removing');
+        setTimeout(() => {
+          row.remove();
+          updateCount();
+          checkEmpty();
+        }, 300);
+        
+        await showModal({
+          title: 'Postulante recibido',
+          message: `Has atendido exitosamente a <strong>${nombre}</strong>.`,
+          icon: true,
+          type: 'success'
+        });
+      } else {
+        await showModal({
+          title: 'Error',
+          message: data.error || 'No se pudo recibir el postulante. Es posible que otro usuario ya lo haya atendido.',
+          icon: true,
+          type: 'error'
+        });
+        
+        // ✅ Si hay error, verificar si la fila debe ser eliminada
+        const checkRow = document.querySelector(`tr[data-id="${id}"]`);
+        if (checkRow && data.error && data.error.includes('ya fue atendido')) {
+          checkRow.classList.add('removing');
+          setTimeout(() => {
+            checkRow.remove();
+            updateCount();
+            checkEmpty();
+          }, 300);
+        }
+      }
+    } catch (err) {
+      // ✅ Ocultar loading en caso de error
+      document.getElementById('loadingOverlay').classList.remove('active');
+      
+      await showModal({
+        title: 'Error',
+        message: 'Ocurrió un error de conexión',
+        icon: true,
+        type: 'error'
+      });
+    }
+  }
+});
+</script>
+
+<script>
+// ✅ ==========================================
+// FUNCIONALIDAD: ELIMINAR POSTULANTE (MEJORADA)
+// ==========================================
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('js-del')) {
+    const btn = e.target;
+    const id = btn.dataset.id;
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    
+    // Verificar que la fila aún existe
+    if (!row) {
+      await showModal({
+        title: 'Error',
+        message: 'Este postulante ya no está disponible.',
+        icon: true,
+        type: 'error'
+      });
+      return;
+    }
+    
+    const nombre = row.querySelector('.apellidos').textContent;
+    
+    const confirmed = await showModal({
+      title: '¿Eliminar postulante?',
+      message: `¿Estás seguro de eliminar a <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
+      icon: true,
+      type: 'confirm',
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      confirmClass: 'danger'
+    });
+    
+    if (!confirmed) return;
+    
+    // ✅ Mostrar loading
+    document.getElementById('loadingOverlay').classList.add('active');
+    
+    try {
+      const res = await fetch(`/api/eliminar/${id}`, {
+        method: 'POST'
+      });
+      
+      const data = await res.json();
+      
+      // ✅ Ocultar loading
+      document.getElementById('loadingOverlay').classList.remove('active');
+      
+      if (data.ok) {
+        // ✅ Animar y eliminar INMEDIATAMENTE
+        row.classList.add('removing');
+        setTimeout(() => {
+          row.remove();
+          updateCount();
+          checkEmpty();
+        }, 300);
+        
+        await showModal({
+          title: 'Postulante eliminado',
+          message: `Se eliminó a <strong>${nombre}</strong> del sistema.`,
+          icon: true,
+          type: 'success'
+        });
+      } else {
+        await showModal({
+          title: 'Error',
+          message: data.error || 'No se pudo eliminar',
+          icon: true,
+          type: 'error'
+        });
+      }
+    } catch (err) {
+      // ✅ Ocultar loading en caso de error
+      document.getElementById('loadingOverlay').classList.remove('active');
+      
+      await showModal({
+        title: 'Error',
+        message: 'Ocurrió un error de conexión',
+        icon: true,
+        type: 'error'
+      });
+    }
+  }
+});
+</script>
+
+<script>
+// ==========================================
+// FILTROS: BÚSQUEDA Y SEXO
+// ==========================================
+const searchInput = document.getElementById('searchInput');
+const sexoFilter = document.getElementById('sexoFilter');
+
+function applyFilters() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const sexo = sexoFilter.value;
+  
+  const rows = document.querySelectorAll('#tbody .row');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    const area = row.querySelector('.area').textContent.toLowerCase();
+    const convocatoria = row.querySelector('.convocatoria').textContent.toLowerCase();
+    const apellidos = row.querySelector('.apellidos').textContent.toLowerCase();
+    const nombres = row.querySelector('.nombres').textContent.toLowerCase();
+    const tipoDoc = row.querySelector('.tipo-doc').textContent.toLowerCase();
+    const numDoc = row.querySelector('.num-doc').textContent.toLowerCase();
+    const celular = row.querySelector('.celular').textContent.toLowerCase();
+    const correo = row.querySelector('.correo').textContent.toLowerCase();
+    const rowSexo = row.querySelector('.sexo').textContent;
+    
+    const matchesSearch = 
+      area.includes(searchTerm) ||
+      convocatoria.includes(searchTerm) ||
+      apellidos.includes(searchTerm) ||
+      nombres.includes(searchTerm) ||
+      tipoDoc.includes(searchTerm) ||
+      numDoc.includes(searchTerm) ||
+      celular.includes(searchTerm) ||
+      correo.includes(searchTerm);
+    
+    const matchesSexo = !sexo || rowSexo === sexo;
+    
+    if (matchesSearch && matchesSexo) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Actualizar badge con resultados filtrados
+  document.getElementById('badgeCount').textContent = `${visibleCount} ${visibleCount === 1 ? 'resultado' : 'resultados'}`;
+}
+
+searchInput.addEventListener('input', applyFilters);
+sexoFilter.addEventListener('change', applyFilters);
+</script>
+
+<script>
+// ==========================================
+// HELPERS
+// ==========================================
+function updateCount() {
+  const rows = document.querySelectorAll('#tbody .row');
+  document.getElementById('badgeCount').textContent = `${rows.length} pendientes`;
+  
+  // Renumerar filas
+  rows.forEach((row, index) => {
+    row.querySelector('.td-num').textContent = index + 1;
+  });
+}
+
+function checkEmpty() {
+  const tbody = document.getElementById('tbody');
+  const rows = tbody.querySelectorAll('.row');
+  
+  if (rows.length === 0) {
+    tbody.innerHTML = `
+      <tr id="emptyRow">
+        <td colspan="15" class="empty">✅ No hay postulantes pendientes</td>
+      </tr>
+    `;
+  } else {
+    // Eliminar fila vacía si existe
+    const emptyRow = tbody.querySelector('#emptyRow');
+    if (emptyRow) emptyRow.remove();
+  }
+}
+</script>
+
+<script>
+// ✅ ==========================================
+// POLLING: DETECTAR NUEVOS POSTULANTES
+// ==========================================
+let maxId = 0;
+
+// Inicializar maxId con el ID más alto actual
+function initMaxId() {
+  const rows = document.querySelectorAll('#tbody .row');
+  rows.forEach(row => {
+    const id = parseInt(row.dataset.id);
+    if (id > maxId) maxId = id;
+  });
+}
+
+initMaxId();
+
+// Función para agregar nueva fila
+function addNewRow(p, prepend = true) {
+  const tbody = document.getElementById('tbody');
+  checkEmpty(); // Remover mensaje vacío si existe
+  
+  const tr = document.createElement('tr');
+  tr.className = 'row new-postulante';
+  tr.dataset.id = p.id;
+  
+  // Obtener el siguiente número de fila
+  const currentRows = tbody.querySelectorAll('.row').length;
+  const rowNum = prepend ? 1 : currentRows + 1;
+  
+  tr.innerHTML = `
+    <td class="td-num">${rowNum}</td>
+    <td class="area">${p.area || '-'}</td>
+    <td class="convocatoria">${p.convocatoria}</td>
+    <<td class="apellidos">${p.apellidos}</td>
+    <td class="nombres">${p.nombres}</td>
+    <td class="tipo-doc">${p.tipo_documento}</td>
+    <td class="num-doc">${p.numero_documento}</td>
+    <td class="fecha-nac">${p.fecha_nacimiento}</td>
+    <td class="sexo">${p.sexo}</td>
+    <td class="celular">${p.celular}</td>
+    <td class="correo">${p.correo}</td>
+    <td class="fuerzas-armadas">${p.fuerzas_armadas || '-'}</td>
+    <td class="tiene-discapacidad">${p.tiene_discapacidad || '-'}</td>
+    <td class="tipo-discapacidad">${p.tipo_discapacidad || '-'}</td>
+    <td class="created">${p.created_at}</td>
+    <td>
+      <div class="actions">
+        <button class="btn btn-success js-recibir" data-id="${p.id}">📥 Recibir</button>
+        <button class="btn btn-danger js-del" data-id="${p.id}">🗑️ Eliminar</button>
+      </div>
+    </td>
+  `;
+  
+  // Agregar al principio de la tabla
+  if (prepend) {
+    tbody.insertBefore(tr, tbody.firstChild);
+  } else {
+    tbody.appendChild(tr);
+  }
+  
+  // Animación de entrada
+  setTimeout(() => {
+    tr.classList.add('new-row-animate');
+  }, 10);
+  
+  // Renumerar todas las filas
+  updateCount();
+  
+  // Aplicar filtros actuales
+  applyFilters();
+}
+
+// Polling: solo detecta NUEVOS postulantes (NO elimina automáticamente)
+async function pollPostulantes() {
+  try {
+    const res = await fetch(`/api/postulantes/pendientes-nuevos?after_id=${maxId}`);
+    const data = await res.json();
+    
+    if (data.ok && data.items && data.items.length > 0) {
+      // Solo agregar nuevos postulantes
+      data.items.forEach(p => {
+        // Verificar que no exista ya en la tabla
+        const existingRow = document.querySelector(`tr[data-id="${p.id}"]`);
+        if (!existingRow) {
+          addNewRow(p, true);
+        }
+        if (p.id > maxId) maxId = p.id;
+      });
+      
+      showNotification(`📥 ${data.items.length} nuevo(s) postulante(s)`);
+    }
+  } catch (err) {
+    console.error('Error polling:', err);
+  }
+}
+
+// Iniciar polling cada 3 segundos
+setInterval(pollPostulantes, 3000);
+
+// Notificación visual
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 9999;
+    animation: slideInRight 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+</script>
+
+</body>
+</html>

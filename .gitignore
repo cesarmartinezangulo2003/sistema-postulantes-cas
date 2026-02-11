@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Base de datos - MUY IMPORTANTE
+*.db
+*.sqlite
+*.sqlite3
+muni.db
+
+# Variables de entorno - CONTIENE CLAVES SECRETAS
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+.pytest_cache/
+
+# Deployment
+.deployment
+.hintrc
