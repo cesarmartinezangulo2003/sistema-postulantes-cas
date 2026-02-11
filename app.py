@@ -863,6 +863,164 @@ def api_eliminar(pid):
     return jsonify({"ok": True})
 
 
+# ✅ ===============================
+# NUEVO: EDITAR POSTULANTE
+# ===============================
+@app.post("/api/editar-postulante")
+def editar_postulante():
+    """Endpoint para editar datos de un postulante"""
+    if session.get("rol") != "usuario":
+        return jsonify({"ok": False, "error": "No autorizado"}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    # Obtener y validar datos
+    postulante_id = data.get("id")
+    if not postulante_id:
+        return jsonify({"ok": False, "error": "ID no proporcionado"}), 400
+
+    # Extraer campos editables
+    area = (data.get("area") or "").strip() or None
+    convocatoria = (data.get("convocatoria") or "").strip()
+    apellidos = (data.get("apellidos") or "").strip().upper()
+    nombres = (data.get("nombres") or "").strip().upper()
+    tipo_documento = (data.get("tipo_documento") or "").strip()
+    numero_documento = (data.get("numero_documento") or "").strip()
+    fecha_nacimiento = (data.get("fecha_nacimiento") or "").strip()
+    sexo = (data.get("sexo") or "").strip()
+    celular = (data.get("celular") or "").strip()
+    correo = (data.get("correo") or "").strip()
+    fuerzas_armadas = (data.get("fuerzas_armadas") or "").strip() or None
+    tiene_discapacidad = (data.get("tiene_discapacidad") or "").strip() or None
+    tipo_discapacidad = (data.get("tipo_discapacidad") or "").strip() or None
+
+    # Validar campos requeridos
+    if not all([convocatoria, apellidos, nombres, tipo_documento, 
+                numero_documento, fecha_nacimiento, sexo, celular, correo]):
+        return jsonify({"ok": False, "error": "Completa todos los campos obligatorios"}), 400
+
+    # Validar correo
+    if not EMAIL_RE.match(correo):
+        return jsonify({"ok": False, "error": "Correo inválido"}), 400
+
+    try:
+        with get_conn() as conn:
+            cur = conn.cursor()
+            
+            # Verificar que el postulante existe y no ha sido atendido
+            if USE_POSTGRES:
+                cur.execute("""
+                    SELECT usuario_atendio FROM postulantes 
+                    WHERE id = %s
+                """, (postulante_id,))
+            else:
+                cur.execute("""
+                    SELECT usuario_atendio FROM postulantes 
+                    WHERE id = ?
+                """, (postulante_id,))
+            
+            postulante = cur.fetchone()
+            
+            if not postulante:
+                return jsonify({"ok": False, "error": "Postulante no encontrado"}), 404
+            
+            usuario_atendio = postulante[0] if USE_POSTGRES else postulante["usuario_atendio"]
+            if usuario_atendio is not None:
+                return jsonify({
+                    "ok": False, 
+                    "error": "No se puede editar un postulante que ya fue atendido"
+                }), 400
+            
+            # Verificar que el nuevo documento no esté duplicado (excepto el mismo postulante)
+            if USE_POSTGRES:
+                cur.execute("""
+                    SELECT id FROM postulantes
+                    WHERE numero_documento = %s AND tipo_documento = %s AND id != %s
+                    LIMIT 1
+                """, (numero_documento, tipo_documento, postulante_id))
+            else:
+                cur.execute("""
+                    SELECT id FROM postulantes
+                    WHERE numero_documento = ? AND tipo_documento = ? AND id != ?
+                    LIMIT 1
+                """, (numero_documento, tipo_documento, postulante_id))
+            
+            duplicado = cur.fetchone()
+            if duplicado:
+                return jsonify({
+                    "ok": False,
+                    "error": f"El {tipo_documento} {numero_documento} ya está registrado en otro postulante"
+                }), 400
+            
+            # Actualizar datos
+            if USE_POSTGRES:
+                cur.execute("""
+                    UPDATE postulantes
+                    SET area = %s,
+                        convocatoria = %s,
+                        apellidos = %s,
+                        nombres = %s,
+                        tipo_documento = %s,
+                        numero_documento = %s,
+                        fecha_nacimiento = %s,
+                        sexo = %s,
+                        celular = %s,
+                        correo = %s,
+                        fuerzas_armadas = %s,
+                        tiene_discapacidad = %s,
+                        tipo_discapacidad = %s
+                    WHERE id = %s AND usuario_atendio IS NULL
+                """, (
+                    area, convocatoria, apellidos, nombres, tipo_documento,
+                    numero_documento, fecha_nacimiento, sexo, celular, correo,
+                    fuerzas_armadas, tiene_discapacidad, tipo_discapacidad,
+                    postulante_id
+                ))
+            else:
+                cur.execute("""
+                    UPDATE postulantes
+                    SET area = ?,
+                        convocatoria = ?,
+                        apellidos = ?,
+                        nombres = ?,
+                        tipo_documento = ?,
+                        numero_documento = ?,
+                        fecha_nacimiento = ?,
+                        sexo = ?,
+                        celular = ?,
+                        correo = ?,
+                        fuerzas_armadas = ?,
+                        tiene_discapacidad = ?,
+                        tipo_discapacidad = ?
+                    WHERE id = ? AND usuario_atendio IS NULL
+                """, (
+                    area, convocatoria, apellidos, nombres, tipo_documento,
+                    numero_documento, fecha_nacimiento, sexo, celular, correo,
+                    fuerzas_armadas, tiene_discapacidad, tipo_discapacidad,
+                    postulante_id
+                ))
+            
+            conn.commit()
+            
+            if cur.rowcount == 0:
+                return jsonify({
+                    "ok": False, 
+                    "error": "No se pudo actualizar. El postulante puede haber sido atendido por otro usuario."
+                }), 400
+            
+            # Registrar log
+            usuario_actual = session.get("usuario")
+            registrar_log(usuario_actual, f"Editó datos de {apellidos}, {nombres} (ID: {postulante_id})")
+            
+            print(f"✅ Postulante editado: {apellidos}, {nombres} - ID {postulante_id}")
+            
+            return jsonify({"ok": True})
+            
+    except Exception as e:
+        print(f"❌ Error al editar postulante: {str(e)}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ===============================
 # EXPORTACIONES
 # ===============================
@@ -1245,6 +1403,7 @@ if __name__ == "__main__":
     print("="*70)
     print("✅ Validación de DNI único activada")
     print("✅ Campos APELLIDOS y NOMBRES separados en MAYÚSCULAS")
+    print("✅ Funcionalidad de EDICIÓN de postulantes habilitada")
     if USE_POSTGRES:
         print("🐘 Base de datos: PostgreSQL (Railway)")
     else:

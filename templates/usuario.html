@@ -16,6 +16,7 @@
       --muted:#6b7280;
       --danger:#b00020;
       --success:#0f9d58;
+      --warning:#f59e0b;
       --shadow: 0 10px 22px rgba(0,0,0,.08);
       --radius: 12px;
     }
@@ -59,6 +60,7 @@
     }
     .btn-danger{ background:var(--danger); color:#fff; }
     .btn-success{ background:var(--success); color:#fff; }
+    .btn-warning{ background:var(--warning); color:#fff; }
 
     .container{
       max-width:1400px;
@@ -116,12 +118,10 @@
       border-radius:12px;
       overflow:auto;
       position: relative;
-      /* Mantener scroll horizontal visible */
       scrollbar-width: thin;
       scrollbar-color: var(--blue-2) #e5e7eb;
     }
 
-    /* Estilos personalizados de scrollbar para Webkit (Chrome, Safari) */
     .table-wrap::-webkit-scrollbar {
       height: 10px;
       width: 10px;
@@ -210,8 +210,10 @@
       background: white;
       border-radius: 16px;
       padding: 0;
-      max-width: 440px;
+      max-width: 600px;
       width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       animation: modalSlideIn 0.3s ease-out;
     }
@@ -306,6 +308,40 @@
     .modal-icon.info {
       background: #eaf2ff;
       color: var(--blue-2);
+    }
+
+    /* ESTILOS PARA FORMULARIO DE EDICIÓN */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--blue-2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
     /* Animación para filas eliminadas */
@@ -428,6 +464,10 @@
         flex: 1;
         min-width: 120px;
       }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* MÓVILES (hasta 768px) */
@@ -495,7 +535,6 @@
         font-size: 11px;
       }
 
-      /* Tablas */
       .table-wrap {
         border-radius: 8px;
       }
@@ -525,7 +564,6 @@
         white-space: nowrap;
       }
 
-      /* Modal */
       .modal {
         width: 95%;
         max-width: 100%;
@@ -560,10 +598,13 @@
         font-size: 24px;
       }
 
-      /* Loading overlay */
       .spinner {
         width: 35px;
         height: 35px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -670,7 +711,7 @@
       }
     }
 
-    /* LANDSCAPE MODE (celulares en horizontal) */
+    /* LANDSCAPE MODE */
     @media (max-height: 500px) and (orientation: landscape) {
       .topbar {
         position: relative;
@@ -687,17 +728,16 @@
       }
     }
 
-    /* AJUSTES ESPECÍFICOS PARA BOTONES EN MÓVILES */
     @media (max-width: 768px) {
       .actions .btn-success,
-      .actions .btn-danger {
+      .actions .btn-warning {
         min-width: 90px;
       }
     }
 
     @media (max-width: 480px) {
       .actions .btn-success,
-      .actions .btn-danger {
+      .actions .btn-warning {
         min-width: 80px;
       }
     }
@@ -782,14 +822,14 @@
               <td>
                 <div class="actions">
                   <button class="btn btn-success js-recibir" data-id="{{ p.id }}">📥 Recibir</button>
-                  <button class="btn btn-danger js-del" data-id="{{ p.id }}">🗑️ Eliminar</button>
+                  <button class="btn btn-warning js-editar" data-id="{{ p.id }}">✏️ Editar</button>
                 </div>
               </td>
             </tr>
             {% endfor %}
           {% else %}
             <tr id="emptyRow">
-              <td colspan="15" class="empty">✅ No hay postulantes pendientes</td>
+              <td colspan="16" class="empty">✅ No hay postulantes pendientes</td>
             </tr>
           {% endif %}
         </tbody>
@@ -835,7 +875,6 @@
 const tableWrap = document.getElementById('tableWrap');
 
 tableWrap.addEventListener('wheel', (e) => {
-  // Si hay scroll horizontal disponible
   if (tableWrap.scrollWidth > tableWrap.clientWidth) {
     e.preventDefault();
     tableWrap.scrollLeft += e.deltaY;
@@ -919,7 +958,237 @@ modalOverlay.addEventListener('click', (e) => {
 
 <script>
 // ✅ ==========================================
-// FUNCIONALIDAD: RECIBIR POSTULANTE (MEJORADA)
+// FUNCIONALIDAD: EDITAR POSTULANTE
+// ==========================================
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('js-editar')) {
+    const btn = e.target;
+    const id = btn.dataset.id;
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    
+    if (!row) {
+      await showModal({
+        title: 'Error',
+        message: 'Este postulante ya no está disponible.',
+        icon: true,
+        type: 'error'
+      });
+      return;
+    }
+    
+    // Obtener datos actuales de la fila
+    const currentData = {
+      area: row.querySelector('.area').textContent,
+      convocatoria: row.querySelector('.convocatoria').textContent,
+      apellidos: row.querySelector('.apellidos').textContent,
+      nombres: row.querySelector('.nombres').textContent,
+      tipo_documento: row.querySelector('.tipo-doc').textContent,
+      numero_documento: row.querySelector('.num-doc').textContent,
+      fecha_nacimiento: row.querySelector('.fecha-nac').textContent,
+      sexo: row.querySelector('.sexo').textContent,
+      celular: row.querySelector('.celular').textContent,
+      correo: row.querySelector('.correo').textContent,
+      fuerzas_armadas: row.querySelector('.fuerzas-armadas').textContent,
+      tiene_discapacidad: row.querySelector('.tiene-discapacidad').textContent,
+      tipo_discapacidad: row.querySelector('.tipo-discapacidad').textContent
+    };
+    
+    // Mostrar formulario de edición en modal
+    modalTitle.textContent = '✏️ Editar Postulante';
+    modalBody.innerHTML = `
+      <form id="editForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Área</label>
+            <input type="text" class="form-input" id="edit_area" value="${currentData.area !== '-' ? currentData.area : ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Convocatoria</label>
+            <input type="text" class="form-input" id="edit_convocatoria" value="${currentData.convocatoria}" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Apellidos</label>
+            <input type="text" class="form-input" id="edit_apellidos" value="${currentData.apellidos}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombres</label>
+            <input type="text" class="form-input" id="edit_nombres" value="${currentData.nombres}" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo Documento</label>
+            <select class="form-select" id="edit_tipo_documento" required>
+              <option value="DNI" ${currentData.tipo_documento === 'DNI' ? 'selected' : ''}>DNI</option>
+              <option value="CE" ${currentData.tipo_documento === 'CE' ? 'selected' : ''}>Carnet de Extranjería</option>
+              <option value="Pasaporte" ${currentData.tipo_documento === 'Pasaporte' ? 'selected' : ''}>Pasaporte</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">N° Documento</label>
+            <input type="text" class="form-input" id="edit_numero_documento" value="${currentData.numero_documento}" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha Nacimiento</label>
+            <input type="date" class="form-input" id="edit_fecha_nacimiento" value="${currentData.fecha_nacimiento}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sexo</label>
+            <select class="form-select" id="edit_sexo" required>
+              <option value="Masculino" ${currentData.sexo === 'Masculino' ? 'selected' : ''}>Masculino</option>
+              <option value="Femenino" ${currentData.sexo === 'Femenino' ? 'selected' : ''}>Femenino</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Celular</label>
+            <input type="tel" class="form-input" id="edit_celular" value="${currentData.celular}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-input" id="edit_correo" value="${currentData.correo}" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">FF.AA.</label>
+            <select class="form-select" id="edit_fuerzas_armadas">
+              <option value="" ${currentData.fuerzas_armadas === '-' ? 'selected' : ''}>No aplica</option>
+              <option value="Sí" ${currentData.fuerzas_armadas === 'Sí' ? 'selected' : ''}>Sí</option>
+              <option value="No" ${currentData.fuerzas_armadas === 'No' ? 'selected' : ''}>No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tiene Discapacidad</label>
+            <select class="form-select" id="edit_tiene_discapacidad">
+              <option value="" ${currentData.tiene_discapacidad === '-' ? 'selected' : ''}>No aplica</option>
+              <option value="Sí" ${currentData.tiene_discapacidad === 'Sí' ? 'selected' : ''}>Sí</option>
+              <option value="No" ${currentData.tiene_discapacidad === 'No' ? 'selected' : ''}>No</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Tipo Discapacidad</label>
+          <input type="text" class="form-input" id="edit_tipo_discapacidad" value="${currentData.tipo_discapacidad !== '-' ? currentData.tipo_discapacidad : ''}">
+        </div>
+      </form>
+    `;
+    
+    modalFooter.innerHTML = '';
+    
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'modal-btn modal-btn-cancel';
+    btnCancel.textContent = 'Cancelar';
+    btnCancel.onclick = closeModal;
+    
+    const btnSave = document.createElement('button');
+    btnSave.className = 'modal-btn modal-btn-success';
+    btnSave.textContent = '💾 Guardar Cambios';
+    btnSave.onclick = async () => {
+      const form = document.getElementById('editForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      
+      const updatedData = {
+        id: id,
+        area: document.getElementById('edit_area').value || null,
+        convocatoria: document.getElementById('edit_convocatoria').value,
+        apellidos: document.getElementById('edit_apellidos').value,
+        nombres: document.getElementById('edit_nombres').value,
+        tipo_documento: document.getElementById('edit_tipo_documento').value,
+        numero_documento: document.getElementById('edit_numero_documento').value,
+        fecha_nacimiento: document.getElementById('edit_fecha_nacimiento').value,
+        sexo: document.getElementById('edit_sexo').value,
+        celular: document.getElementById('edit_celular').value,
+        correo: document.getElementById('edit_correo').value,
+        fuerzas_armadas: document.getElementById('edit_fuerzas_armadas').value || null,
+        tiene_discapacidad: document.getElementById('edit_tiene_discapacidad').value || null,
+        tipo_discapacidad: document.getElementById('edit_tipo_discapacidad').value || null
+      };
+      
+      closeModal();
+      document.getElementById('loadingOverlay').classList.add('active');
+      
+      try {
+        const res = await fetch('/api/editar-postulante', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+        
+        const data = await res.json();
+        document.getElementById('loadingOverlay').classList.remove('active');
+        
+        if (data.ok) {
+          // Actualizar la fila con los nuevos datos
+          row.querySelector('.area').textContent = updatedData.area || '-';
+          row.querySelector('.convocatoria').textContent = updatedData.convocatoria;
+          row.querySelector('.apellidos').textContent = updatedData.apellidos;
+          row.querySelector('.nombres').textContent = updatedData.nombres;
+          row.querySelector('.tipo-doc').textContent = updatedData.tipo_documento;
+          row.querySelector('.num-doc').textContent = updatedData.numero_documento;
+          row.querySelector('.fecha-nac').textContent = updatedData.fecha_nacimiento;
+          row.querySelector('.sexo').textContent = updatedData.sexo;
+          row.querySelector('.celular').textContent = updatedData.celular;
+          row.querySelector('.correo').textContent = updatedData.correo;
+          row.querySelector('.fuerzas-armadas').textContent = updatedData.fuerzas_armadas || '-';
+          row.querySelector('.tiene-discapacidad').textContent = updatedData.tiene_discapacidad || '-';
+          row.querySelector('.tipo-discapacidad').textContent = updatedData.tipo_discapacidad || '-';
+          
+          // Animación de actualización
+          row.style.background = '#d1fae5';
+          setTimeout(() => {
+            row.style.background = '';
+          }, 1000);
+          
+          await showModal({
+            title: 'Cambios guardados',
+            message: `Los datos de <strong>${updatedData.apellidos}</strong> han sido actualizados exitosamente.`,
+            icon: true,
+            type: 'success'
+          });
+        } else {
+          await showModal({
+            title: 'Error',
+            message: data.error || 'No se pudo guardar los cambios.',
+            icon: true,
+            type: 'error'
+          });
+        }
+      } catch (err) {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        await showModal({
+          title: 'Error',
+          message: 'Ocurrió un error de conexión',
+          icon: true,
+          type: 'error'
+        });
+      }
+    };
+    
+    modalFooter.appendChild(btnCancel);
+    modalFooter.appendChild(btnSave);
+    modalOverlay.classList.add('active');
+  }
+});
+</script>
+
+<script>
+// ✅ ==========================================
+// FUNCIONALIDAD: RECIBIR POSTULANTE
 // ==========================================
 document.addEventListener('click', async (e) => {
   if (e.target.classList.contains('js-recibir')) {
@@ -927,7 +1196,6 @@ document.addEventListener('click', async (e) => {
     const id = btn.dataset.id;
     const row = document.querySelector(`tr[data-id="${id}"]`);
     
-    // Verificar que la fila aún existe
     if (!row) {
       await showModal({
         title: 'Error',
@@ -952,7 +1220,6 @@ document.addEventListener('click', async (e) => {
     
     if (!confirmed) return;
     
-    // ✅ Mostrar loading
     document.getElementById('loadingOverlay').classList.add('active');
     
     try {
@@ -963,12 +1230,9 @@ document.addEventListener('click', async (e) => {
       });
       
       const data = await res.json();
-      
-      // ✅ Ocultar loading
       document.getElementById('loadingOverlay').classList.remove('active');
       
       if (data.ok) {
-        // ✅ Animar y eliminar fila INMEDIATAMENTE
         row.classList.add('removing');
         setTimeout(() => {
           row.remove();
@@ -985,12 +1249,11 @@ document.addEventListener('click', async (e) => {
       } else {
         await showModal({
           title: 'Error',
-          message: data.error || 'No se pudo recibir el postulante. Es posible que otro usuario ya lo haya atendido.',
+          message: data.error || 'No se pudo recibir el postulante.',
           icon: true,
           type: 'error'
         });
         
-        // ✅ Si hay error, verificar si la fila debe ser eliminada
         const checkRow = document.querySelector(`tr[data-id="${id}"]`);
         if (checkRow && data.error && data.error.includes('ya fue atendido')) {
           checkRow.classList.add('removing');
@@ -1002,95 +1265,7 @@ document.addEventListener('click', async (e) => {
         }
       }
     } catch (err) {
-      // ✅ Ocultar loading en caso de error
       document.getElementById('loadingOverlay').classList.remove('active');
-      
-      await showModal({
-        title: 'Error',
-        message: 'Ocurrió un error de conexión',
-        icon: true,
-        type: 'error'
-      });
-    }
-  }
-});
-</script>
-
-<script>
-// ✅ ==========================================
-// FUNCIONALIDAD: ELIMINAR POSTULANTE (MEJORADA)
-// ==========================================
-document.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('js-del')) {
-    const btn = e.target;
-    const id = btn.dataset.id;
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    
-    // Verificar que la fila aún existe
-    if (!row) {
-      await showModal({
-        title: 'Error',
-        message: 'Este postulante ya no está disponible.',
-        icon: true,
-        type: 'error'
-      });
-      return;
-    }
-    
-    const nombre = row.querySelector('.apellidos').textContent;
-    
-    const confirmed = await showModal({
-      title: '¿Eliminar postulante?',
-      message: `¿Estás seguro de eliminar a <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
-      icon: true,
-      type: 'confirm',
-      confirmText: 'Sí, eliminar',
-      cancelText: 'Cancelar',
-      confirmClass: 'danger'
-    });
-    
-    if (!confirmed) return;
-    
-    // ✅ Mostrar loading
-    document.getElementById('loadingOverlay').classList.add('active');
-    
-    try {
-      const res = await fetch(`/api/eliminar/${id}`, {
-        method: 'POST'
-      });
-      
-      const data = await res.json();
-      
-      // ✅ Ocultar loading
-      document.getElementById('loadingOverlay').classList.remove('active');
-      
-      if (data.ok) {
-        // ✅ Animar y eliminar INMEDIATAMENTE
-        row.classList.add('removing');
-        setTimeout(() => {
-          row.remove();
-          updateCount();
-          checkEmpty();
-        }, 300);
-        
-        await showModal({
-          title: 'Postulante eliminado',
-          message: `Se eliminó a <strong>${nombre}</strong> del sistema.`,
-          icon: true,
-          type: 'success'
-        });
-      } else {
-        await showModal({
-          title: 'Error',
-          message: data.error || 'No se pudo eliminar',
-          icon: true,
-          type: 'error'
-        });
-      }
-    } catch (err) {
-      // ✅ Ocultar loading en caso de error
-      document.getElementById('loadingOverlay').classList.remove('active');
-      
       await showModal({
         title: 'Error',
         message: 'Ocurrió un error de conexión',
@@ -1147,7 +1322,6 @@ function applyFilters() {
     }
   });
   
-  // Actualizar badge con resultados filtrados
   document.getElementById('badgeCount').textContent = `${visibleCount} ${visibleCount === 1 ? 'resultado' : 'resultados'}`;
 }
 
@@ -1163,7 +1337,6 @@ function updateCount() {
   const rows = document.querySelectorAll('#tbody .row');
   document.getElementById('badgeCount').textContent = `${rows.length} pendientes`;
   
-  // Renumerar filas
   rows.forEach((row, index) => {
     row.querySelector('.td-num').textContent = index + 1;
   });
@@ -1176,11 +1349,10 @@ function checkEmpty() {
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr id="emptyRow">
-        <td colspan="15" class="empty">✅ No hay postulantes pendientes</td>
+        <td colspan="16" class="empty">✅ No hay postulantes pendientes</td>
       </tr>
     `;
   } else {
-    // Eliminar fila vacía si existe
     const emptyRow = tbody.querySelector('#emptyRow');
     if (emptyRow) emptyRow.remove();
   }
@@ -1193,7 +1365,6 @@ function checkEmpty() {
 // ==========================================
 let maxId = 0;
 
-// Inicializar maxId con el ID más alto actual
 function initMaxId() {
   const rows = document.querySelectorAll('#tbody .row');
   rows.forEach(row => {
@@ -1204,16 +1375,14 @@ function initMaxId() {
 
 initMaxId();
 
-// Función para agregar nueva fila
 function addNewRow(p, prepend = true) {
   const tbody = document.getElementById('tbody');
-  checkEmpty(); // Remover mensaje vacío si existe
+  checkEmpty();
   
   const tr = document.createElement('tr');
   tr.className = 'row new-postulante';
   tr.dataset.id = p.id;
   
-  // Obtener el siguiente número de fila
   const currentRows = tbody.querySelectorAll('.row').length;
   const rowNum = prepend ? 1 : currentRows + 1;
   
@@ -1221,7 +1390,7 @@ function addNewRow(p, prepend = true) {
     <td class="td-num">${rowNum}</td>
     <td class="area">${p.area || '-'}</td>
     <td class="convocatoria">${p.convocatoria}</td>
-    <<td class="apellidos">${p.apellidos}</td>
+    <td class="apellidos">${p.apellidos}</td>
     <td class="nombres">${p.nombres}</td>
     <td class="tipo-doc">${p.tipo_documento}</td>
     <td class="num-doc">${p.numero_documento}</td>
@@ -1236,40 +1405,32 @@ function addNewRow(p, prepend = true) {
     <td>
       <div class="actions">
         <button class="btn btn-success js-recibir" data-id="${p.id}">📥 Recibir</button>
-        <button class="btn btn-danger js-del" data-id="${p.id}">🗑️ Eliminar</button>
+        <button class="btn btn-warning js-editar" data-id="${p.id}">✏️ Editar</button>
       </div>
     </td>
   `;
   
-  // Agregar al principio de la tabla
   if (prepend) {
     tbody.insertBefore(tr, tbody.firstChild);
   } else {
     tbody.appendChild(tr);
   }
   
-  // Animación de entrada
   setTimeout(() => {
     tr.classList.add('new-row-animate');
   }, 10);
   
-  // Renumerar todas las filas
   updateCount();
-  
-  // Aplicar filtros actuales
   applyFilters();
 }
 
-// Polling: solo detecta NUEVOS postulantes (NO elimina automáticamente)
 async function pollPostulantes() {
   try {
     const res = await fetch(`/api/postulantes/pendientes-nuevos?after_id=${maxId}`);
     const data = await res.json();
     
     if (data.ok && data.items && data.items.length > 0) {
-      // Solo agregar nuevos postulantes
       data.items.forEach(p => {
-        // Verificar que no exista ya en la tabla
         const existingRow = document.querySelector(`tr[data-id="${p.id}"]`);
         if (!existingRow) {
           addNewRow(p, true);
@@ -1284,10 +1445,8 @@ async function pollPostulantes() {
   }
 }
 
-// Iniciar polling cada 3 segundos
 setInterval(pollPostulantes, 3000);
 
-// Notificación visual
 function showNotification(message) {
   const notification = document.createElement('div');
   notification.style.cssText = `

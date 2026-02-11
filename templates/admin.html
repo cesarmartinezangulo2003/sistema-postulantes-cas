@@ -933,6 +933,7 @@
                 <th>Discapacidad</th>
                 <th>Tipo Discapacidad</th>
                 <th>Fecha Registro</th>
+                <th>Eliminar</th>
               </tr>
             </thead>
             <tbody id="postulantesRegistradosTableBody">
@@ -954,11 +955,16 @@
                   <td>{{ p.tiene_discapacidad or '-' }}</td>
                   <td>{{ p.tipo_discapacidad or '-' }}</td>
                   <td>{{ p.created_at }}</td>
+                  <td>
+                    <button class="btn-delete js-eliminar-registrado" data-id="{{ p.id }}" title="Eliminar postulante">
+                      ✕
+                    </button>
+                  </td>
                 </tr>
                 {% endfor %}
               {% else %}
                 <tr id="emptyRowRegistrados">
-                  <td colspan="15" style="text-align:center;padding:18px;color:var(--muted);">
+                  <td colspan="16" style="text-align:center;padding:18px;color:var(--muted);">
                     ✅ No hay postulantes registrados pendientes
                   </td>
                 </tr>
@@ -1304,7 +1310,7 @@ async function cargarPostulantesRegistrados() {
       tbody.innerHTML = '';
       
       if (data.items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:20px;color:#6b7280;">No hay postulantes registrados pendientes</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:20px;color:#6b7280;">No hay postulantes registrados pendientes</td></tr>';
         return;
       }
       
@@ -1327,6 +1333,11 @@ async function cargarPostulantesRegistrados() {
           <td>${p.tiene_discapacidad || '-'}</td>
           <td>${p.tipo_discapacidad || '-'}</td>
           <td>${p.created_at}</td>
+          <td>
+            <button class="btn-delete js-eliminar-registrado" data-id="${p.id}" title="Eliminar postulante">
+              ✕
+            </button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -1605,7 +1616,82 @@ async function activarUsuario(username) {
 </script>
 
 <script>
-// ELIMINAR POSTULANTE (ADMIN)
+// ✅ ==========================================
+// ELIMINAR POSTULANTE REGISTRADO (PENDIENTE)
+// ==========================================
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('js-eliminar-registrado')) {
+    const btn = e.target;
+    const id = btn.dataset.id;
+    const row = document.querySelector(`#postulantesRegistradosTableBody tr[data-id="${id}"]`);
+    
+    if (!row) return;
+    
+    const apellidos = row.querySelector('.apellidos')?.textContent || 'este postulante';
+    
+    const confirmed = await showModal({
+      title: '¿Eliminar postulante registrado?',
+      message: `¿Estás seguro de eliminar a <strong>${apellidos}</strong> de los postulantes registrados?<br><br>⚠️ Esta acción eliminará definitivamente al postulante del sistema.`,
+      icon: true,
+      type: 'confirm',
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      confirmClass: 'danger'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      const res = await fetch(`/api/eliminar/${id}`, {
+        method: 'POST'
+      });
+      
+      const data = await res.json();
+      
+      if (data.ok) {
+        row.classList.add('removing-row');
+        setTimeout(() => {
+          row.remove();
+          renumerarRegistrados();
+          actualizarBadgeRegistrados();
+        }, 300);
+        
+        await showModal({
+          title: 'Postulante eliminado',
+          message: `Se eliminó a <strong>${apellidos}</strong> del sistema.`,
+          icon: true,
+          type: 'success'
+        });
+      } else {
+        await showModal({
+          title: 'Error',
+          message: data.error || 'No se pudo eliminar el postulante',
+          icon: true,
+          type: 'error'
+        });
+      }
+    } catch (err) {
+      await showModal({
+        title: 'Error',
+        message: 'Ocurrió un error de conexión',
+        icon: true,
+        type: 'error'
+      });
+    }
+  }
+});
+
+function actualizarBadgeRegistrados() {
+  const rows = document.querySelectorAll('#postulantesRegistradosTableBody tr');
+  const badge = document.getElementById('badgeRegistrados');
+  if (badge) {
+    badge.textContent = rows.length;
+  }
+}
+</script>
+
+<script>
+// ELIMINAR POSTULANTE RECIBIDO (ADMIN)
 document.addEventListener('click', async (e) => {
   if (e.target.classList.contains('js-eliminar-postulante')) {
     const btn = e.target;
@@ -1836,7 +1922,8 @@ function addNewRowAdmin(p) {
     <td class="td-num">${rowNum}</td>
     <td>${p.area || '-'}</td>
     <td>${p.convocatoria}</td>
-    <td class="apellidos">${p.apellidos_nombres}</td>
+    <td class="apellidos">${p.apellidos}</td>
+    <td class="nombres">${p.nombres}</td>
     <td>${p.tipo_documento}</td>
     <td>${p.numero_documento}</td>
     <td>${p.fecha_nacimiento}</td>
@@ -1925,7 +2012,8 @@ function addNewRowRegistrados(p) {
     <td class="td-num-reg">${rowNum}</td>
     <td>${p.area || '-'}</td>
     <td>${p.convocatoria}</td>
-    <td class="apellidos">${p.apellidos_nombres}</td>
+    <td class="apellidos">${p.apellidos}</td>
+    <td class="nombres">${p.nombres}</td>
     <td>${p.tipo_documento}</td>
     <td>${p.numero_documento}</td>
     <td>${p.fecha_nacimiento}</td>
@@ -1936,6 +2024,11 @@ function addNewRowRegistrados(p) {
     <td>${p.tiene_discapacidad || '-'}</td>
     <td>${p.tipo_discapacidad || '-'}</td>
     <td>${p.created_at}</td>
+    <td>
+      <button class="btn-delete js-eliminar-registrado" data-id="${p.id}" title="Eliminar postulante">
+        ✕
+      </button>
+    </td>
   `;
   
   tbody.insertBefore(tr, tbody.firstChild);
