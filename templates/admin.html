@@ -7,2186 +7,1223 @@
 
   <style>
     :root{
-      --blue:#003f8f;
-      --blue-2:#0a56b5;
-      --bg:#f4f6f9;
-      --card:#ffffff;
-      --border:#d7dbe2;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --danger:#b00020;
-      --success:#0f9d58;
-      --shadow: 0 10px 22px rgba(0,0,0,.08);
-      --radius: 12px;
+      --blue:#003f8f; --blue-2:#0a56b5; --bg:#f4f6f9; --card:#ffffff;
+      --border:#d7dbe2; --text:#1f2937; --muted:#6b7280; --danger:#b00020;
+      --success:#0f9d58; --warning:#f59e0b;
+      --shadow: 0 10px 22px rgba(0,0,0,.08); --radius: 12px;
     }
-
     *{ box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
     body{ margin:0; background:var(--bg); color:var(--text); overflow-x: hidden; }
-    html { overflow-x: hidden; }
-
-    .topbar{
-      background:var(--blue);
-      padding:14px 18px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      color:#fff;
-      position:sticky;
-      top:0;
-      z-index:10;
-      box-shadow:0 6px 16px rgba(0,0,0,.12);
-    }
+    html{ overflow-x: hidden; }
+    .topbar{ background:var(--blue); padding:14px 18px; display:flex; justify-content:space-between; align-items:center; color:#fff; position:sticky; top:0; z-index:10; box-shadow:0 6px 16px rgba(0,0,0,.12); }
     .topbar-left{ display:flex; align-items:center; gap:14px; }
     .topbar img{ height:44px; }
     .topbar-info{ font-size:12px; line-height:1.3; }
-
-    .btn{
-      height:34px;
-      padding:0 12px;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      font-size:11px;
-      font-weight:700;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      background:#e5e7eb;
-      transition: all 0.2s;
-    }
+    .btn{ height:34px; padding:0 12px; border-radius:8px; border:none; cursor:pointer; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:6px; background:#e5e7eb; transition: all 0.2s; }
     .btn:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none !important; }
     .btn-danger{ background:var(--danger); color:#fff; }
-
-    .badge{
-      padding:4px 8px;
-      border-radius:8px;
-      font-size:11px;
-      font-weight:bold;
-    }
+    .status-bar{ display:flex; align-items:center; gap:8px; font-size:11px; font-weight:600; color:#fff; padding:5px 10px; background:rgba(255,255,255,0.15); border-radius:8px; }
+    .status-dot{ width:8px; height:8px; border-radius:50%; background:#4ade80; animation:pulse 2s infinite; }
+    .status-dot.offline{ background:#f87171; animation:none; }
+    @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    .badge{ padding:4px 8px; border-radius:8px; font-size:11px; font-weight:bold; }
     .badge-ok{ background:#e6f4ea; color:var(--success); }
     .badge-off{ background:#fdecea; color:var(--danger); }
-
-    .container{
-      max-width:1400px;
-      margin:18px auto;
-      padding:0 18px;
-      overflow-x: hidden;
-    }
-
-    .panel{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:16px;
-      box-shadow:var(--shadow);
-      margin-bottom:16px;
-      overflow-x: hidden;
-    }
-
-    /* ✅ SCROLL MEJORADO */
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      overflow-y: auto;
-      max-height: 600px;
-      margin-top: 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      /* Mantener scroll horizontal visible */
-      scrollbar-width: thin;
-      scrollbar-color: var(--blue-2) #e5e7eb;
-    }
-
-    /* Estilos personalizados de scrollbar para Webkit (Chrome, Safari) */
-    .table-wrapper::-webkit-scrollbar {
-      height: 10px;
-      width: 10px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb {
-      background: var(--blue-2);
-      border-radius: 10px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb:hover {
-      background: var(--blue);
-    }
-
-    table{
-      width:100%;
-      min-width:1700px; /* ✅ Aumentado por nueva columna */
-      border-collapse:separate;
-      border-spacing:0;
-      font-size:12px;
-    }
-    
-    /* Tablas de usuarios y logs más estrechas */
-    #usuarios table,
-    #logs table {
-      min-width: 100%;
-    }
-    thead th{
-      background:#f8fafc;
-      padding:10px;
-      font-weight:800;
-      border-bottom:1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    tbody td{
-      padding:10px;
-      border-bottom:1px solid #eef2f7;
-      white-space:nowrap;
-    }
-
-    .admin-layout{
-      display:flex;
-      gap:16px;
-      position: relative;
-    }
-    
-    /* Espacio para el sidebar fixed */
-    .admin-layout::before {
-      content: '';
-      width: 220px;
-      min-width: 220px;
-      flex-shrink: 0;
-    }
-    .sidebar{
-      width:220px;
-      min-width:220px;
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      height:fit-content;
-      position: fixed;
-      top: 90px;
-      left: 18px;
-    }
-    .side-btn{
-      all:unset;
-      padding:10px 12px;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:13px;
-      font-weight:700;
-      transition: all 0.2s;
-    }
-    .side-btn:hover{
-      background:#f3f4f6;
-    }
-    .side-btn.active{
-      background:#eaf2ff;
-      color:var(--blue-2);
-    }
-    .content{ 
-      flex:1; 
-      min-width: 0;
-    }
-
-    /* SUB-PESTAÑAS */
-    .sub-tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 0;
-    }
-
-    .sub-tab-btn {
-      all: unset;
-      padding: 12px 24px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sub-tab-btn:hover {
-      background: #f9fafb;
-      color: var(--text);
-    }
-
-    .sub-tab-btn.active {
-      color: var(--blue);
-      border-bottom-color: var(--blue);
-      background: #f0f4ff;
-    }
-
-    .sub-badge {
-      background: var(--blue-2);
-      color: white;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .sub-tab-btn.active .sub-badge {
-      background: var(--blue);
-    }
-
-    .sub-tab-content {
-      display: block;
-    }
-
-    .sub-tab-content[hidden] {
-      display: none;
-    }
-
-    /* Animación para nuevas filas */
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .new-row {
-      animation: slideIn 0.3s ease-out;
-    }
-
-    /* MODAL STYLES */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.2s ease-out;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal {
-      background: white;
-      border-radius: 16px;
-      padding: 0;
-      max-width: 440px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    .modal-header {
-      padding: 24px 24px 16px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      margin: 0;
-    }
-
-    .modal-body {
-      padding: 24px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .modal-footer {
-      padding: 16px 24px 24px;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .modal-btn {
-      padding: 10px 24px;
-      border-radius: 10px;
-      border: none;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .modal-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .modal-btn-cancel {
-      background: #f3f4f6;
-      color: var(--text);
-    }
-
-    .modal-btn-confirm {
-      background: var(--blue);
-      color: white;
-    }
-
-    .modal-btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .modal-btn-success {
-      background: var(--success);
-      color: white;
-    }
-
-    .modal-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 28px;
-    }
-
-    .modal-icon.success {
-      background: #e6f4ea;
-      color: var(--success);
-    }
-
-    .modal-icon.error {
-      background: #fdecea;
-      color: var(--danger);
-    }
-
-    .modal-icon.warning {
-      background: #fff4e5;
-      color: #f59e0b;
-    }
-
-    .modal-icon.info {
-      background: #eaf2ff;
-      color: var(--blue-2);
-    }
-
-    /* Botón eliminar X */
-    .btn-delete {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: none;
-      background: var(--danger);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      line-height: 1;
-    }
-    
-    .btn-delete:hover {
-      background: #8b0017;
-      transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(176, 0, 32, 0.3);
-    }
-
-    /* ✅ Botón ojo para contraseña */
-    .btn-eye {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: none;
-      background: var(--blue-2);
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .btn-eye:hover {
-      background: var(--blue);
-      transform: scale(1.1);
-    }
-
-    /* Animación para filas eliminadas */
-    @keyframes slideOutLeft {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-    }
-
-    .removing-row {
-      animation: slideOutLeft 0.3s ease-out;
-    }
-
-    /* ✅ NUEVAS ANIMACIONES */
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    @keyframes slideOutRight {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-    }
-
-    /* ============================================ */
-    /* 📱 RESPONSIVE DESIGN - MEDIA QUERIES */
-    /* ============================================ */
-
-    /* TABLETS Y DISPOSITIVOS MEDIANOS (hasta 1024px) */
-    @media (max-width: 1024px) {
-      .container {
-        padding: 0 12px;
-        margin: 12px auto;
-      }
-
-      .admin-layout {
-        flex-direction: column;
-      }
-
-      .admin-layout::before {
-        display: none;
-      }
-
-      .sidebar {
-        position: relative;
-        width: 100%;
-        top: 0;
-        left: 0;
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 6px;
-        padding: 8px;
-      }
-
-      .side-btn {
-        white-space: nowrap;
-        font-size: 12px;
-        padding: 8px 12px;
-      }
-
-      .panel {
-        padding: 12px;
-      }
-
-      .table-wrapper {
-        max-height: 500px;
-      }
-    }
-
-    /* MÓVILES (hasta 768px) */
-    @media (max-width: 768px) {
-      .topbar {
-        padding: 10px 12px;
-        flex-wrap: wrap;
-      }
-
-      .topbar img {
-        height: 36px;
-      }
-
-      .topbar-info {
-        font-size: 10px;
-      }
-
-      .topbar-left {
-        gap: 8px;
-      }
-
-      .btn {
-        height: 30px;
-        padding: 0 10px;
-        font-size: 10px;
-      }
-
-      .container {
-        margin: 8px auto;
-        padding: 0 8px;
-      }
-
-      .sidebar {
-        padding: 6px;
-        gap: 4px;
-      }
-
-      .side-btn {
-        font-size: 11px;
-        padding: 6px 10px;
-      }
-
-      .panel h2 {
-        font-size: 18px;
-      }
-
-      .panel h3 {
-        font-size: 16px;
-      }
-
-      /* Estadísticas responsive */
-      #statsAreas,
-      .panel > div > div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* Sub-pestañas */
-      .sub-tabs {
-        overflow-x: auto;
-        gap: 4px;
-      }
-
-      .sub-tab-btn {
-        padding: 10px 16px;
-        font-size: 11px;
-        white-space: nowrap;
-      }
-
-      .sub-badge {
-        font-size: 10px;
-        padding: 2px 6px;
-      }
-
-      /* Tablas */
-      .table-wrapper {
-        max-height: 400px;
-        margin-top: 12px;
-      }
-
-      table {
-        font-size: 10px;
-      }
-
-      thead th {
-        padding: 8px 6px;
-        font-size: 10px;
-      }
-
-      tbody td {
-        padding: 8px 6px;
-      }
-
-      /* Botones en tablas */
-      .btn-delete,
-      .btn-eye {
-        width: 24px;
-        height: 24px;
-        font-size: 12px;
-      }
-
-      /* Formulario crear usuario */
-      #formUsuario {
-        flex-direction: column;
-      }
-
-      #formUsuario .btn,
-      #formUsuario input,
-      #formUsuario select {
-        width: 100%;
-      }
-
-      /* Modal */
-      .modal {
-        width: 95%;
-        max-width: 100%;
-      }
-
-      .modal-header {
-        padding: 16px 16px 12px;
-      }
-
-      .modal-title {
-        font-size: 16px;
-      }
-
-      .modal-body {
-        padding: 16px;
-        font-size: 13px;
-      }
-
-      .modal-footer {
-        padding: 12px 16px 16px;
-        flex-direction: column-reverse;
-      }
-
-      .modal-btn {
-        width: 100%;
-        padding: 12px;
-      }
-
-      .modal-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 24px;
-      }
-    }
-
-    /* MÓVILES PEQUEÑOS (hasta 480px) */
-    @media (max-width: 480px) {
-      .topbar {
-        padding: 8px 10px;
-      }
-
-      .topbar img {
-        height: 32px;
-      }
-
-      .topbar-info {
-        font-size: 9px;
-      }
-
-      .topbar-info div {
-        display: none;
-      }
-
-      .topbar-info div:first-child {
-        display: block;
-      }
-
-      .btn {
-        height: 28px;
-        padding: 0 8px;
-        font-size: 9px;
-        gap: 4px;
-      }
-
-      .panel {
-        padding: 10px;
-        border-radius: 8px;
-      }
-
-      .panel h2 {
-        font-size: 16px;
-        margin-bottom: 12px !important;
-      }
-
-      .panel h3 {
-        font-size: 14px;
-      }
-
-      .sidebar {
-        padding: 4px;
-      }
-
-      .side-btn {
-        font-size: 10px;
-        padding: 6px 8px;
-      }
-
-      .sub-tab-btn {
-        padding: 8px 12px;
-        font-size: 10px;
-      }
-
-      table {
-        font-size: 9px;
-        min-width: 1400px;
-      }
-
-      thead th {
-        padding: 6px 4px;
-      }
-
-      tbody td {
-        padding: 6px 4px;
-      }
-
-      .badge {
-        font-size: 9px;
-        padding: 3px 6px;
-      }
-
-      /* Botones más pequeños */
-      .btn-delete,
-      .btn-eye {
-        width: 22px;
-        height: 22px;
-        font-size: 11px;
-      }
-
-      /* Estadísticas cards */
-      .panel > div > div > div {
-        padding: 16px !important;
-      }
-
-      .modal-title {
-        font-size: 14px;
-      }
-
-      .modal-body {
-        font-size: 12px;
-        padding: 12px;
-      }
-    }
-
-    /* LANDSCAPE MODE (celulares en horizontal) */
-    @media (max-height: 500px) and (orientation: landscape) {
-      .topbar {
-        position: relative;
-      }
-
-      .sidebar {
-        position: relative;
-        top: 0;
-      }
-
-      .table-wrapper {
-        max-height: 300px;
-      }
-    }
+    .container{ max-width:1400px; margin:18px auto; padding:0 18px; overflow-x:hidden; }
+    .panel{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); margin-bottom:16px; overflow-x:hidden; }
+    .table-wrapper{ width:100%; overflow-x:auto; overflow-y:auto; max-height:600px; margin-top:16px; border:1px solid var(--border); border-radius:8px; scrollbar-width:thin; scrollbar-color:var(--blue-2) #e5e7eb; }
+    .table-wrapper::-webkit-scrollbar{ height:10px; width:10px; }
+    .table-wrapper::-webkit-scrollbar-track{ background:#f1f1f1; border-radius:10px; }
+    .table-wrapper::-webkit-scrollbar-thumb{ background:var(--blue-2); border-radius:10px; }
+    .table-wrapper::-webkit-scrollbar-thumb:hover{ background:var(--blue); }
+    table{ width:100%; min-width:1700px; border-collapse:separate; border-spacing:0; font-size:12px; }
+    #usuarios table, #logs table{ min-width:100%; }
+    thead th{ background:#f8fafc; padding:10px; font-weight:800; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:2; }
+    tbody td{ padding:10px; border-bottom:1px solid #eef2f7; white-space:nowrap; }
+    .admin-layout{ display:flex; gap:16px; position:relative; }
+    .admin-layout::before{ content:''; width:220px; min-width:220px; flex-shrink:0; }
+    .sidebar{ width:220px; min-width:220px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px; display:flex; flex-direction:column; gap:8px; height:fit-content; position:fixed; top:90px; left:18px; min-height:300px; }
+    .side-btn{ all:unset; padding:10px 12px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; transition:all 0.2s; }
+    .side-btn:hover{ background:#f3f4f6; }
+    .side-btn.active{ background:#eaf2ff; color:var(--blue-2); }
+    .content{ flex:1; min-width:0; }
+    .search-bar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; padding:12px; background:#f8fafc; border-radius:10px; border:1px solid var(--border); }
+    .search-input{ flex:1; min-width:200px; height:36px; padding:0 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; outline:none; transition:border-color 0.2s; }
+    .search-input:focus{ border-color:var(--blue-2); box-shadow:0 0 0 3px rgba(10,86,181,0.1); }
+    .search-select{ height:36px; padding:0 10px; border:1px solid var(--border); border-radius:8px; font-size:12px; font-weight:600; outline:none; background:white; cursor:pointer; }
+    .search-select:focus{ border-color:var(--blue-2); }
+    .search-count{ font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap; }
+    .btn-clear-search{ height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--border); background:white; font-size:12px; font-weight:700; cursor:pointer; color:var(--muted); transition:all 0.2s; }
+    .btn-clear-search:hover{ background:#f3f4f6; color:var(--text); }
+    .pagination-bar{ display:flex; align-items:center; justify-content:space-between; padding:12px 8px; border-top:1px solid var(--border); flex-wrap:wrap; gap:8px; }
+    .pagination-info{ font-size:12px; color:var(--muted); font-weight:600; }
+    .pagination-btns{ display:flex; gap:4px; align-items:center; flex-wrap:wrap; }
+    .page-btn{ width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:white; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+    .page-btn:hover:not(:disabled){ background:#eaf2ff; border-color:var(--blue-2); color:var(--blue); }
+    .page-btn.active{ background:var(--blue); color:white; border-color:var(--blue); }
+    .page-btn:disabled{ opacity:0.3; cursor:not-allowed; }
+    .page-size-select{ height:32px; padding:0 8px; border:1px solid var(--border); border-radius:8px; font-size:12px; font-weight:600; background:white; cursor:pointer; }
+    .sub-tabs{ display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:0; }
+    .sub-tab-btn{ all:unset; padding:12px 24px; cursor:pointer; font-size:13px; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; }
+    .sub-tab-btn:hover{ background:#f9fafb; color:var(--text); }
+    .sub-tab-btn.active{ color:var(--blue); border-bottom-color:var(--blue); background:#f0f4ff; }
+    .sub-badge{ background:var(--blue-2); color:white; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; }
+    .sub-tab-btn.active .sub-badge{ background:var(--blue); }
+    .sub-tab-content{ display:block; }
+    .sub-tab-content[hidden]{ display:none; }
+    @keyframes highlightNew{ 0%{background:#bbf7d0;} 100%{background:transparent;} }
+    .highlight-new{ animation:highlightNew 2s ease-out; }
+    .modal-overlay{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.active{ display:flex; }
+    .modal{ background:white; border-radius:16px; padding:0; max-width:440px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header{ padding:24px 24px 16px; border-bottom:1px solid #e5e7eb; }
+    .modal-title{ font-size:18px; font-weight:700; color:var(--text); margin:0; }
+    .modal-body{ padding:24px; color:var(--muted); font-size:14px; line-height:1.6; }
+    .modal-footer{ padding:16px 24px 24px; display:flex; gap:12px; justify-content:flex-end; }
+    .modal-btn{ padding:10px 24px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .modal-btn:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+    .modal-btn-cancel{ background:#f3f4f6; color:var(--text); }
+    .modal-btn-confirm{ background:var(--blue); color:white; }
+    .modal-btn-danger{ background:var(--danger); color:white; }
+    .modal-btn-success{ background:var(--success); color:white; }
+    .modal-icon{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:28px; }
+    .modal-icon.success{ background:#e6f4ea; color:var(--success); }
+    .modal-icon.error{ background:#fdecea; color:var(--danger); }
+    .modal-icon.warning{ background:#fff4e5; color:#f59e0b; }
+    .modal-icon.info{ background:#eaf2ff; color:var(--blue-2); }
+    .btn-delete{ width:28px; height:28px; border-radius:6px; border:none; background:var(--danger); color:white; font-size:16px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .btn-delete:hover{ background:#8b0017; transform:scale(1.1); }
+    .btn-eye{ width:28px; height:28px; border-radius:6px; border:none; background:var(--blue-2); color:white; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .btn-eye:hover{ background:var(--blue); transform:scale(1.1); }
+    .conexion-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; transition: background 0.4s; }
+    @media (max-width:1024px){ .container{ padding:0 12px; margin:12px auto; } .admin-layout{ flex-direction:column; } .admin-layout::before{ display:none; } .sidebar{ position:relative; width:100%; top:0; left:0; flex-direction:row; overflow-x:auto; gap:6px; padding:8px; min-height:unset; } .side-btn{ white-space:nowrap; font-size:12px; padding:8px 12px; } .panel{ padding:12px; } .table-wrapper{ max-height:500px; } }
+    @media (max-width:768px){ .topbar{ padding:10px 12px; flex-wrap:wrap; } .topbar img{ height:36px; } .topbar-info{ font-size:10px; } .btn{ height:30px; padding:0 10px; font-size:10px; } .search-bar{ padding:8px; gap:6px; } .search-input{ min-width:150px; } .pagination-bar{ flex-direction:column; align-items:flex-start; } table{ font-size:10px; } thead th{ padding:8px 6px; font-size:10px; } tbody td{ padding:8px 6px; } }
   </style>
 </head>
-
 <body>
 
 <div class="topbar">
   <div class="topbar-left">
-    <img src="/static/img/mml.png">
+    <img src="/static/img/mml.png" alt="Logo MML">
     <div class="topbar-info">
       <div><strong>Administrador:</strong> {{ usuario }}</div>
       <div id="datetime"></div>
     </div>
   </div>
-  <a href="/logout" class="btn btn-danger">🚪 Cerrar sesión</a>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">En línea</span>
+    </div>
+    <a href="/logout" class="btn btn-danger">🚪 Cerrar sesión</a>
+  </div>
 </div>
+
+<!-- CSRF token disponible para JS -->
+<meta name="csrf-token" content="{{ csrf_token }}">
 
 <div class="container admin-layout">
 
+  <!-- SIDEBAR con panel de conectados al fondo -->
   <aside class="sidebar">
     <button class="side-btn active" data-tab="stats">📊 Estadísticas</button>
     <button class="side-btn" data-tab="postulantes">📋 Postulantes</button>
     <button class="side-btn" data-tab="usuarios">👤 Usuarios</button>
     <button class="side-btn" data-tab="logs">🕒 Logs</button>
+    <button class="side-btn" data-tab="formulario">📋 Formulario</button>
+
+    <!-- USUARIOS CONECTADOS EN SIDEBAR -->
+    <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Conectados</span>
+        <span id="sidebarBadgeActivos" style="background:var(--blue);color:white;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:700;">0</span>
+      </div>
+      <div id="sidebarListaActivos" style="display:flex;flex-direction:column;gap:5px;">
+        <span style="font-size:11px;color:var(--muted);font-style:italic;">Cargando...</span>
+      </div>
+    </div>
   </aside>
 
   <main class="content">
 
+    <!-- ESTADÍSTICAS -->
     <section class="panel tab" id="stats">
-      <h2 style="margin-bottom: 24px;">📊 Estadísticas del Sistema</h2>
-      
-      <!-- ESTADÍSTICAS POR GÉNERO -->
-      <div style="margin-bottom: 32px;">
-        <h3 style="margin-bottom: 16px; color: var(--muted);">👥 Postulantes por Género</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px;">
-          
-          <!-- Card Mujeres -->
-          <div style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-              <div style="width: 56px; height: 56px; background: #ec407a; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white;">
-                👩
-              </div>
-              <div>
-                <div style="font-size: 18px; font-weight: 700; color: #880e4f;">MUJERES</div>
-                <div style="font-size: 12px; color: #ad1457;">Postulantes</div>
-              </div>
+      <h2 style="margin-bottom:24px;">📊 Estadísticas del Sistema</h2>
+      <div style="margin-bottom:32px;">
+        <h3 style="margin-bottom:16px;color:var(--muted);">👥 Postulantes por Género</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px;">
+          <div style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(233,30,99,0.15);">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <div style="width:56px;height:56px;background:#ec407a;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;">👩</div>
+              <div><div style="font-size:18px;font-weight:700;color:#880e4f;">MUJERES</div><div style="font-size:12px;color:#ad1457;">Postulantes</div></div>
             </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <!-- Registradas -->
-              <div style="background: rgba(255,255,255,0.5); border-radius: 12px; padding: 16px; text-align: center;">
-                <div style="font-size: 11px; font-weight: 700; color: #ad1457; margin-bottom: 8px;">REGISTRADAS</div>
-                <div style="font-size: 32px; font-weight: 800; color: #c2185b;" id="statMujeresRegistradas">0</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div style="background:rgba(255,255,255,0.5);border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:11px;font-weight:700;color:#ad1457;margin-bottom:8px;">REGISTRADAS</div>
+                <div style="font-size:32px;font-weight:800;color:#c2185b;" id="statMujeresRegistradas">0</div>
               </div>
-              
-              <!-- Recibidas -->
-              <div style="background: rgba(255,255,255,0.5); border-radius: 12px; padding: 16px; text-align: center;">
-                <div style="font-size: 11px; font-weight: 700; color: #ad1457; margin-bottom: 8px;">RECIBIDAS</div>
-                <div style="font-size: 32px; font-weight: 800; color: #c2185b;" id="statMujeresRecibidas">0</div>
+              <div style="background:rgba(255,255,255,0.5);border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:11px;font-weight:700;color:#ad1457;margin-bottom:8px;">RECIBIDAS</div>
+                <div style="font-size:32px;font-weight:800;color:#c2185b;" id="statMujeresRecibidas">0</div>
               </div>
             </div>
           </div>
-          
-          <!-- Card Hombres -->
-          <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-              <div style="width: 56px; height: 56px; background: #2196f3; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white;">
-                👨
-              </div>
-              <div>
-                <div style="font-size: 18px; font-weight: 700; color: #0d47a1;">HOMBRES</div>
-                <div style="font-size: 12px; color: #1565c0;">Postulantes</div>
-              </div>
+          <div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(33,150,243,0.15);">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <div style="width:56px;height:56px;background:#2196f3;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;">👨</div>
+              <div><div style="font-size:18px;font-weight:700;color:#0d47a1;">HOMBRES</div><div style="font-size:12px;color:#1565c0;">Postulantes</div></div>
             </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <!-- Registrados -->
-              <div style="background: rgba(255,255,255,0.5); border-radius: 12px; padding: 16px; text-align: center;">
-                <div style="font-size: 11px; font-weight: 700; color: #1565c0; margin-bottom: 8px;">REGISTRADOS</div>
-                <div style="font-size: 32px; font-weight: 800; color: #1976d2;" id="statHombresRegistrados">0</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div style="background:rgba(255,255,255,0.5);border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:11px;font-weight:700;color:#1565c0;margin-bottom:8px;">REGISTRADOS</div>
+                <div style="font-size:32px;font-weight:800;color:#1976d2;" id="statHombresRegistrados">0</div>
               </div>
-              
-              <!-- Recibidos -->
-              <div style="background: rgba(255,255,255,0.5); border-radius: 12px; padding: 16px; text-align: center;">
-                <div style="font-size: 11px; font-weight: 700; color: #1565c0; margin-bottom: 8px;">RECIBIDOS</div>
-                <div style="font-size: 32px; font-weight: 800; color: #1976d2;" id="statHombresRecibidos">0</div>
+              <div style="background:rgba(255,255,255,0.5);border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:11px;font-weight:700;color:#1565c0;margin-bottom:8px;">RECIBIDOS</div>
+                <div style="font-size:32px;font-weight:800;color:#1976d2;" id="statHombresRecibidos">0</div>
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-      
-      <!-- ✅ ESTADÍSTICAS POR ÁREA -->
       <div>
-        <h3 style="margin-bottom: 16px; color: var(--muted);">🏢 Postulantes por Área</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;" id="statsAreas">
-          <!-- Se llenará dinámicamente con JavaScript -->
-        </div>
+        <h3 style="margin-bottom:16px;color:var(--muted);">🏢 Postulantes por Área</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;" id="statsAreas"></div>
       </div>
     </section>
 
+    <!-- POSTULANTES -->
     <section class="panel tab" id="postulantes" hidden>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
         <h2 style="margin:0;">Postulantes</h2>
-        <div style="display:flex; gap:8px;">
-          <a href="/admin/export/csv" class="btn" style="background:var(--success);color:#fff;">📄 Exportar CSV</a>
-          <a href="/admin/export/excel" class="btn" style="background:var(--blue-2);color:#fff;">📊 Exportar Excel</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="/admin/export/excel" class="btn" style="background:var(--blue-2);color:#fff;">📊 Excel Recibidos</a>
+          <a href="/admin/export/excel-pendientes" class="btn" style="background:#7c3aed;color:#fff;">📊 Excel Registrados</a>
         </div>
       </div>
 
-      <!-- SUB-PESTAÑAS -->
       <div class="sub-tabs">
         <button class="sub-tab-btn active" data-subtab="registrados">
-          📝 Postulantes Registrados
-          <span class="sub-badge" id="badgeRegistrados">{{ total_pendientes if total_pendientes is defined else 0 }}</span>
+          📝 Registrados <span class="sub-badge" id="badgeRegistrados">0</span>
         </button>
         <button class="sub-tab-btn" data-subtab="recibidos">
-          ✅ Postulantes Recibidos
-          <span class="sub-badge" id="badgeRecibidos">{{ total_postulantes }}</span>
+          ✅ Recibidos <span class="sub-badge" id="badgeRecibidos">0</span>
         </button>
       </div>
 
-      <!-- PESTAÑA: POSTULANTES REGISTRADOS (PENDIENTES) -->
+      <!-- REGISTRADOS -->
       <div class="sub-tab-content" id="registrados">
+        <div class="search-bar" style="margin-top:16px;">
+          <input class="search-input" id="searchRegistrados" placeholder="🔍 Buscar por nombre, apellido o DNI..." oninput="filtrarRegistrados()">
+          <select class="search-select" id="filtroSexoReg" onchange="filtrarRegistrados()">
+            <option value="">Todos los géneros</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+          <select class="search-select" id="filtroAreaReg" onchange="filtrarRegistrados()">
+            <option value="">Todas las áreas</option>
+          </select>
+          <span class="search-count" id="countRegistrados">0 resultados</span>
+          <button class="btn-clear-search" onclick="limpiarFiltrosRegistrados()">✕ Limpiar</button>
+        </div>
         <div class="table-wrapper" id="tableWrapperRegistrados">
           <table>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Área</th>
-                <th>Convocatoria</th>
-                <th>Apellidos</th>
-                <th>Nombres</th>
-                <th>Tipo Doc</th>
-                <th>N° Doc</th>
-                <th>Fecha Nacimiento</th>
-                <th>Sexo</th>
-                <th>Celular</th>
-                <th>Correo</th>
-                <th>FF.AA.</th>
-                <th>Discapacidad</th>
-                <th>Tipo Discapacidad</th>
-                <th>Fecha Registro</th>
-                <th>Eliminar</th>
-              </tr>
+              <tr><th>#</th><th>Área</th><th>Convocatoria</th><th>Apellidos</th><th>Nombres</th>
+              <th>Tipo Doc</th><th>N° Doc</th><th>Fecha Nacimiento</th><th>Sexo</th>
+              <th>Celular</th><th>Correo</th><th>FF.AA.</th><th>Discapacidad</th>
+              <th>Tipo Discapacidad</th><th>Fecha Registro</th><th>Eliminar</th></tr>
             </thead>
-            <tbody id="postulantesRegistradosTableBody">
-              {% if postulantes_pendientes %}
-                {% for p in postulantes_pendientes %}
-                <tr data-id="{{ p.id }}">
-                  <td class="td-num-reg">{{ loop.index }}</td>
-                  <td>{{ p.area or '-' }}</td>
-                  <td>{{ p.convocatoria }}</td>
-                  <td class="apellidos">{{ p.apellidos }}</td>
-                  <td class="nombres">{{ p.nombres }}</td>
-                  <td>{{ p.tipo_documento }}</td>
-                  <td>{{ p.numero_documento }}</td>
-                  <td>{{ p.fecha_nacimiento }}</td>
-                  <td>{{ p.sexo }}</td>
-                  <td>{{ p.celular }}</td>
-                  <td>{{ p.correo }}</td>
-                  <td>{{ p.fuerzas_armadas or '-' }}</td>
-                  <td>{{ p.tiene_discapacidad or '-' }}</td>
-                  <td>{{ p.tipo_discapacidad or '-' }}</td>
-                  <td>{{ p.created_at }}</td>
-                  <td>
-                    <button class="btn-delete js-eliminar-registrado" data-id="{{ p.id }}" title="Eliminar postulante">
-                      ✕
-                    </button>
-                  </td>
-                </tr>
-                {% endfor %}
-              {% else %}
-                <tr id="emptyRowRegistrados">
-                  <td colspan="16" style="text-align:center;padding:18px;color:var(--muted);">
-                    ✅ No hay postulantes registrados pendientes
-                  </td>
-                </tr>
-              {% endif %}
+            <tbody id="tbodyRegistrados">
+              <tr><td colspan="16" style="text-align:center;padding:18px;color:var(--muted);">⏳ Cargando...</td></tr>
             </tbody>
           </table>
         </div>
+        <div class="pagination-bar">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="pagination-info" id="infoRegistrados"></span>
+            <select class="page-size-select" id="pageSizeReg" onchange="cambiarPagReg()">
+              <option value="25">25 por página</option><option value="50">50 por página</option><option value="100">100 por página</option>
+            </select>
+          </div>
+          <div class="pagination-btns" id="botonesRegistrados"></div>
+        </div>
       </div>
 
-      <!-- PESTAÑA: POSTULANTES RECIBIDOS (ATENDIDOS) -->
+      <!-- RECIBIDOS -->
       <div class="sub-tab-content" id="recibidos" hidden>
+        <div class="search-bar" style="margin-top:16px;">
+          <input class="search-input" id="searchRecibidos" placeholder="🔍 Buscar por nombre, apellido o DNI..." oninput="filtrarRecibidos()">
+          <select class="search-select" id="filtroSexoRec" onchange="filtrarRecibidos()">
+            <option value="">Todos los géneros</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+          <select class="search-select" id="filtroAreaRec" onchange="filtrarRecibidos()">
+            <option value="">Todas las áreas</option>
+          </select>
+          <span class="search-count" id="countRecibidos">0 resultados</span>
+          <button class="btn-clear-search" onclick="limpiarFiltrosRecibidos()">✕ Limpiar</button>
+        </div>
         <div class="table-wrapper" id="tableWrapperRecibidos">
           <table>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Área</th>
-                <th>Convocatoria</th>
-                <th>Apellidos</th>
-                <th>Nombres</th>
-                <th>Tipo Doc</th>
-                <th>N° Doc</th>
-                <th>Fecha Nacimiento</th>
-                <th>Sexo</th>
-                <th>Celular</th>
-                <th>Correo</th>
-                <th>FF.AA.</th>
-                <th>Discapacidad</th>
-                <th>Tipo Discapacidad</th>
-                <th>Fecha Registro</th>
-                <th>Usuario</th>
-                <th>Fecha Atención</th>
-                <th>Eliminar</th>
-              </tr>
+              <tr><th>#</th><th>Área</th><th>Convocatoria</th><th>Apellidos</th><th>Nombres</th>
+              <th>Tipo Doc</th><th>N° Doc</th><th>Fecha Nacimiento</th><th>Sexo</th>
+              <th>Celular</th><th>Correo</th><th>FF.AA.</th><th>Discapacidad</th>
+              <th>Tipo Discapacidad</th><th>Fecha Registro</th><th>Usuario</th><th>Fecha Atención</th><th>Eliminar</th></tr>
             </thead>
-            <tbody id="postulantesTableBody">
-              {% for p in postulantes %}
-              <tr data-id="{{ p.id }}">
-                <td class="td-num">{{ loop.index }}</td>
-                <td>{{ p.area or '-' }}</td>
-                <td>{{ p.convocatoria }}</td>
-                <td class="apellidos">{{ p.apellidos }}</td>
-                <td class="nombres">{{ p.nombres }}</td>
-                <td>{{ p.tipo_documento }}</td>
-                <td>{{ p.numero_documento }}</td>
-                <td>{{ p.fecha_nacimiento }}</td>
-                <td>{{ p.sexo }}</td>
-                <td>{{ p.celular }}</td>
-                <td>{{ p.correo }}</td>
-                <td>{{ p.fuerzas_armadas or '-' }}</td>
-                <td>{{ p.tiene_discapacidad or '-' }}</td>
-                <td>{{ p.tipo_discapacidad or '-' }}</td>
-                <td>{{ p.created_at }}</td>
-                <td>{{ p.usuario_atendio }}</td>
-                <td>{{ p.fecha_atencion }}</td>
-                <td>
-                  <button class="btn-delete js-eliminar-postulante" data-id="{{ p.id }}" title="Eliminar postulante">
-                    ✕
-                  </button>
-                </td>
-              </tr>
-              {% endfor %}
+            <tbody id="tbodyRecibidos">
+              <tr><td colspan="18" style="text-align:center;padding:18px;color:var(--muted);">⏳ Cargando...</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="pagination-bar">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="pagination-info" id="infoRecibidos"></span>
+            <select class="page-size-select" id="pageSizeRec" onchange="cambiarPagRec()">
+              <option value="25">25 por página</option><option value="50">50 por página</option><option value="100">100 por página</option>
+            </select>
+          </div>
+          <div class="pagination-btns" id="botonesRecibidos"></div>
         </div>
       </div>
     </section>
 
     <!-- USUARIOS -->
     <section class="panel tab" id="usuarios" hidden>
-      <h2>Usuarios del sistema</h2>
 
-      <div class="table-wrapper" style="max-height: 400px;">
+      <!-- Usuarios conectados en tiempo real -->
+      <div id="usuariosActivosPanel" style="margin-bottom:20px;background:linear-gradient(135deg,#eaf2ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;"></div>
+            <span style="font-size:14px;font-weight:800;color:#1e3a8a;">Usuarios conectados ahora</span>
+            <span id="badgeActivos" style="background:#003f8f;color:white;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;">0</span>
+          </div>
+          <span style="font-size:11px;color:#6b7280;">Actualiza cada 10s</span>
+        </div>
+        <div id="listaActivos" style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;color:#6b7280;font-style:italic;">Cargando...</span>
+        </div>
+      </div>
+
+      <h2>Usuarios del sistema</h2>
+      <div class="search-bar">
+        <input class="search-input" id="searchUsuarios" placeholder="🔍 Buscar por usuario o rol..." oninput="filtrarUsuarios()">
+        <select class="search-select" id="filtroRolUsr" onchange="filtrarUsuarios()">
+          <option value="">Todos los roles</option>
+          <option value="admin">Administrador</option>
+          <option value="usuario">Usuario</option>
+        </select>
+        <span class="search-count" id="countUsuarios">0 resultados</span>
+        <button class="btn-clear-search" onclick="limpiarFiltrosUsuarios()">✕ Limpiar</button>
+      </div>
+      <div class="table-wrapper" style="max-height:400px;">
         <table>
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Contraseña</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Acción</th>
-              <th>Eliminar</th>
-            </tr>
-          </thead>
-          <tbody id="usuariosTableBody">
+          <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Conexión</th><th>Contraseña</th><th>Acción</th><th>Eliminar</th></tr></thead>
+          <tbody id="tbodyUsuarios">
             {% for u in usuarios %}
             {% set activo = (u.estado | int) == 1 %}
-            <tr data-username="{{ u.username }}">
-              <td class="username">{{ u.username }}</td>
-              <td class="password-cell">
-                <span class="password-hidden">••••••••</span>
-                <button class="btn-eye js-toggle-password" title="Mostrar/Ocultar contraseña">
-                  👁️
-                </button>
-              </td>
+            <tr data-username="{{ u.username }}" data-rol="{{ u.rol }}">
+              <td class="td-username">{{ u.username }}</td>
               <td>{{ u.rol }}</td>
-              <td class="estado-cell">
-                {% if activo %}
-                  <span class="badge badge-ok">Activo</span>
-                {% else %}
-                  <span class="badge badge-off">Inactivo</span>
-                {% endif %}
+              <td class="td-estado">
+                {% if activo %}<span class="badge badge-ok">Activo</span>
+                {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
               </td>
-              <td class="acciones-cell">
+              <td class="td-conexion">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div class="conexion-dot" style="background:#f87171;" title="Desconectado"></div>
+                  <span class="conexion-label" style="font-size:11px;color:var(--muted);">Desconectado</span>
+                </div>
+              </td>
+              <td>
+                <button class="btn" style="background:#7c3aed;color:white;" onclick="cambiarPassword('{{ u.username }}')">🔑 Cambiar</button>
+              </td>
+              <td class="td-acciones">
                 {% if u.username != 'admin' %}
-
-                <button class="btn btn-activar"
-                  style="background:var(--success);color:#fff; opacity:{{ '0.4' if activo else '1' }}"
-                  {% if activo %}disabled{% endif %}
-                  onclick="activarUsuario('{{ u.username }}')">
-                  Activar
-                </button>
-
-                <button class="btn btn-danger btn-desactivar"
-                  style="opacity:{{ '1' if activo else '0.4' }}"
-                  {% if not activo %}disabled{% endif %}
-                  onclick="desactivarUsuario('{{ u.username }}')">
-                  Desactivar
-                </button>
-
-                {% else %}
-                  —
-                {% endif %}
+                <button class="btn btn-activar" style="background:var(--success);color:#fff;opacity:{{ '0.4' if activo else '1' }}" {% if activo %}disabled{% endif %} onclick="activarUsuario('{{ u.username }}')">Activar</button>
+                <button class="btn btn-danger btn-desactivar" style="opacity:{{ '1' if activo else '0.4' }}" {% if not activo %}disabled{% endif %} onclick="desactivarUsuario('{{ u.username }}')">Desactivar</button>
+                {% else %}—{% endif %}
               </td>
               <td>
                 {% if u.username != 'admin' %}
-                <button class="btn-delete js-eliminar-usuario" data-username="{{ u.username }}" title="Eliminar usuario">
-                  ✕
-                </button>
-                {% else %}
-                  —
-                {% endif %}
+                <button class="btn-delete js-del-usuario" data-username="{{ u.username }}">✕</button>
+                {% else %}—{% endif %}
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-
-      <h3 style="margin-top:16px">Crear usuario</h3>
-
-      <form id="formUsuario" style="display:flex; gap:8px; flex-wrap:wrap;">
-        <input class="btn" name="username" placeholder="Usuario" required>
-        <input class="btn" type="password" name="password" placeholder="Contraseña" required>
-        <select name="rol" class="btn" required>
+      <div class="pagination-bar">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="pagination-info" id="infoUsuarios"></span>
+          <select class="page-size-select" id="pageSizeUsr" onchange="cambiarPagUsr()">
+            <option value="10">10 por página</option><option value="25">25 por página</option><option value="50">50 por página</option>
+          </select>
+        </div>
+        <div class="pagination-btns" id="botonesUsuarios"></div>
+      </div>
+      <h3 style="margin-top:16px;">Crear usuario</h3>
+      <form id="formUsuario" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input class="search-input" name="username" placeholder="Usuario" required style="min-width:140px;max-width:180px;">
+        <input class="search-input" type="password" name="password" placeholder="Contraseña" required style="min-width:140px;max-width:180px;">
+        <select name="rol" class="search-select" required>
           <option value="">Rol</option>
           <option value="usuario">Usuario</option>
           <option value="admin">Administrador</option>
         </select>
-        <button class="btn" type="submit">Crear</button>
+        <button class="btn" type="submit" style="background:var(--blue);color:white;">➕ Crear</button>
       </form>
     </section>
 
+    <!-- LOGS -->
     <section class="panel tab" id="logs" hidden>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h2 style="margin:0;">Logs del sistema</h2>
-        <button class="btn" id="btnLimpiarLogs" style="background:var(--danger);color:#fff;">
-          🗑️ Eliminar todos los logs
-        </button>
+        <button class="btn btn-danger" id="btnLimpiarLogs">🗑️ Eliminar todos los logs</button>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin-top:0;">
-        Mostrando los últimos 100 registros.
-      </p>
-      
-      <div class="table-wrapper" style="max-height: 500px;">
+      <div class="search-bar">
+        <input class="search-input" id="searchLogs" placeholder="🔍 Buscar por usuario o acción..." oninput="buscarLogs()">
+        <span class="search-count" id="countLogs">0 resultados</span>
+        <button class="btn-clear-search" onclick="limpiarFiltrosLogs()">✕ Limpiar</button>
+      </div>
+      <div class="table-wrapper" style="max-height:500px;">
         <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Usuario</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for l in logs %}
-            <tr>
-              <td>{{ l.fecha }}</td>
-              <td>{{ l.usuario }}</td>
-              <td>{{ l.accion }}</td>
-            </tr>
-            {% endfor %}
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th></tr></thead>
+          <tbody id="tbodyLogs">
+            <tr><td colspan="3" style="text-align:center;padding:18px;color:var(--muted);">⏳ Cargando...</td></tr>
           </tbody>
         </table>
+      </div>
+      <div class="pagination-bar">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="pagination-info" id="infoLogs"></span>
+          <select class="page-size-select" id="pageSizeLog" onchange="cambiarPagLog()">
+            <option value="25">25 por página</option><option value="50">50 por página</option><option value="100">100 por página</option>
+          </select>
+        </div>
+        <div class="pagination-btns" id="botonesLogs"></div>
+      </div>
+    </section>
+
+    <!-- FORMULARIO — estado convocatoria -->
+    <section class="panel tab" id="formulario" hidden>
+      <h2 style="margin-bottom:4px;">📋 Estado del Formulario Público</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:24px;">Controla si los ciudadanos pueden registrarse. Cuando cierras la convocatoria, el formulario muestra una pantalla de "Finalizado".</p>
+
+      <div style="max-width:520px;margin:0 auto;">
+        <div id="convCard" style="border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.15);transition:all 0.4s;">
+          <div style="background:linear-gradient(135deg,#003f8f 0%,#0052b8 100%);padding:28px 24px;display:flex;align-items:center;gap:18px;">
+            <img src="/static/img/mml.png" alt="MML" style="height:60px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+            <div style="color:white;">
+              <div style="font-size:11px;opacity:0.8;letter-spacing:1px;text-transform:uppercase;">Municipalidad Metropolitana de Lima</div>
+              <div style="font-size:17px;font-weight:800;margin-top:4px;line-height:1.3;">Registro de Postulantes<br>CAS 2026 · OGA-OGRH</div>
+            </div>
+          </div>
+          <div style="padding:28px 24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;">
+              <div id="convDot" style="width:14px;height:14px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,0.2);transition:all 0.4s;"></div>
+              <span id="convEstadoLabel" style="font-size:22px;font-weight:800;transition:all 0.3s;color:#15803d;">CONVOCATORIA ABIERTA</span>
+            </div>
+            <p id="convDesc" style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:28px;">
+              El formulario público está activo. Los ciudadanos pueden registrar su postulación.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+              <button id="btnCerrarConv" onclick="cambiarEstadoConvocatoria(false)"
+                style="padding:12px 32px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:#b00020;color:white;transition:all 0.2s;box-shadow:0 4px 12px rgba(176,0,32,0.3);">
+                🔒 Cerrar convocatoria
+              </button>
+              <button id="btnAbrirConv" onclick="cambiarEstadoConvocatoria(true)"
+                style="padding:12px 32px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:#0f9d58;color:white;transition:all 0.2s;box-shadow:0 4px 12px rgba(15,157,88,0.3);display:none;">
+                🔓 Abrir convocatoria
+              </button>
+            </div>
+            <div style="text-align:center;margin-top:20px;font-size:11px;color:#9ca3af;">
+              Último cambio: <span id="convUltimoUpdate">—</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:16px;background:#fff8e1;border:1px solid #f59e0b;border-radius:10px;font-size:13px;color:#92400e;">
+          <strong>⚠️ Ten en cuenta:</strong> Al cerrar la convocatoria, cualquier ciudadano que intente enviar el formulario recibirá un mensaje de "La convocatoria ha finalizado". Los datos ya registrados no se eliminan.
+        </div>
       </div>
     </section>
 
   </main>
 </div>
 
-<!-- MODAL GENÉRICO -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title" id="modalTitle">Título</h3>
-    </div>
-    <div class="modal-body" id="modalBody">
-      Mensaje
-    </div>
-    <div class="modal-footer" id="modalFooter">
-      <!-- Botones se insertan dinámicamente -->
-    </div>
+    <div class="modal-header"><h3 class="modal-title" id="modalTitle">Título</h3></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
   </div>
 </div>
 
 <script>
-  function updateDateTime(){
-    document.getElementById("datetime").textContent =
-      new Date().toLocaleString("es-PE");
-  }
-  updateDateTime();
-  setInterval(updateDateTime,1000);
+// ==========================================
+// ÁREAS
+// ==========================================
+const AREAS_ADMIN = {
+  'GGRD':  'Gestión del Riesgo de Desastres',
+  'GSCGA': 'Servicios a la Ciudad y Gestión Ambiental',
+  'GFC':   'Fiscalización y Control',
+  'GSC':   'Seguridad Ciudadana',
+  'GDE':   'Desarrollo Económico'
+};
 
-  const buttons = document.querySelectorAll(".side-btn");
-  const tabs = document.querySelectorAll(".tab");
-
-  buttons.forEach(b=>{
-    b.addEventListener("click",()=>{
-      buttons.forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-      const id = b.dataset.tab;
-      tabs.forEach(t=>t.hidden = (t.id !== id));
+(function poblarFiltrosArea() {
+  ['filtroAreaReg', 'filtroAreaRec'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    Object.entries(AREAS_ADMIN).forEach(([codigo]) => {
+      const opt = document.createElement('option');
+      opt.value = codigo;
+      opt.textContent = codigo;
+      sel.appendChild(opt);
     });
   });
+})();
 
-  // SUB-PESTAÑAS DE POSTULANTES
-  const subTabButtons = document.querySelectorAll(".sub-tab-btn");
-  const subTabContents = document.querySelectorAll(".sub-tab-content");
-
-  subTabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      subTabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      
-      const targetId = btn.dataset.subtab;
-      subTabContents.forEach(content => {
-        if (content.id === targetId) {
-          content.hidden = false;
-        } else {
-          content.hidden = true;
-        }
-      });
-    });
-  });
-</script>
-
-<script>
-// ==========================================
-// SCROLL HORIZONTAL CON RUEDA DEL MOUSE
-// ==========================================
-const tableWrapperRegistrados = document.getElementById('tableWrapperRegistrados');
-const tableWrapperRecibidos = document.getElementById('tableWrapperRecibidos');
-
-[tableWrapperRegistrados, tableWrapperRecibidos].forEach(wrapper => {
-  if (wrapper) {
-    wrapper.addEventListener('wheel', (e) => {
-      if (wrapper.scrollWidth > wrapper.clientWidth) {
-        e.preventDefault();
-        wrapper.scrollLeft += e.deltaY;
-      }
-    });
-  }
-});
-</script>
-
-<script>
-// ==========================================
-// MOSTRAR/OCULTAR CONTRASEÑAS
-// ==========================================
-// Map para almacenar contraseñas en cache (username -> password)
-const passwordsMap = new Map();
-
-// Event listener para botones de ojo
-document.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('js-toggle-password')) {
-    const btn = e.target;
-    const row = btn.closest('tr');
-    const username = row.dataset.username;
-    const passwordCell = row.querySelector('.password-cell');
-    const passwordSpan = passwordCell.querySelector('.password-hidden');
-    
-    // Verificar si está oculta o visible
-    const isHidden = passwordSpan.textContent === '••••••••';
-    
-    if (isHidden) {
-      // Mostrar contraseña - obtener del servidor si no está en cache
-      if (!passwordsMap.has(username)) {
-        try {
-          const res = await fetch('/api/obtener-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-          });
-          
-          const data = await res.json();
-          
-          if (data.ok && data.password) {
-            passwordsMap.set(username, data.password);
-          } else {
-            await showModal({
-              title: 'Error',
-              message: 'No se pudo obtener la contraseña',
-              icon: true,
-              type: 'error'
-            });
-            return;
-          }
-        } catch (err) {
-          await showModal({
-            title: 'Error',
-            message: 'Error de conexión',
-            icon: true,
-            type: 'error'
-          });
-          return;
-        }
-      }
-      
-      // Mostrar contraseña
-      passwordSpan.textContent = passwordsMap.get(username);
-      btn.textContent = '🙈';
-      btn.title = 'Ocultar contraseña';
-    } else {
-      // Ocultar contraseña
-      passwordSpan.textContent = '••••••••';
-      btn.textContent = '👁️';
-      btn.title = 'Mostrar contraseña';
-    }
-  }
-});
-</script>
-
-<script>
-// ==========================================
-// CARGAR POSTULANTES REGISTRADOS (PENDIENTES)
-// ==========================================
-async function cargarPostulantesRegistrados() {
-  try {
-    const res = await fetch('/api/postulantes/registrados');
-    const data = await res.json();
-    
-    if (data.ok && data.items) {
-      const tbody = document.getElementById('postulantesRegistradosTableBody');
-      tbody.innerHTML = '';
-      
-      if (data.items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:20px;color:#6b7280;">No hay postulantes registrados pendientes</td></tr>';
-        return;
-      }
-      
-      data.items.forEach((p, index) => {
-        const tr = document.createElement('tr');
-        tr.dataset.id = p.id;
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${p.area || '-'}</td>
-          <td>${p.convocatoria}</td>
-          <td>${p.apellidos}</td>
-          <td>${p.nombres}</td>
-          <td>${p.tipo_documento}</td>
-          <td>${p.numero_documento}</td>
-          <td>${p.fecha_nacimiento}</td>
-          <td>${p.sexo}</td>
-          <td>${p.celular}</td>
-          <td>${p.correo}</td>
-          <td>${p.fuerzas_armadas || '-'}</td>
-          <td>${p.tiene_discapacidad || '-'}</td>
-          <td>${p.tipo_discapacidad || '-'}</td>
-          <td>${p.created_at}</td>
-          <td>
-            <button class="btn-delete js-eliminar-registrado" data-id="${p.id}" title="Eliminar postulante">
-              ✕
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-  } catch (err) {
-    console.error('Error cargando postulantes registrados:', err);
-  }
+// ── CSRF helper
+function getCsrfToken() {
+  return document.querySelector('meta[name="csrf-token"]')?.content || '';
+}
+function csrfHeaders() {
+  return { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() };
 }
 
-cargarPostulantesRegistrados();
-setInterval(cargarPostulantesRegistrados, 5000);
+// ==========================================
+// UTILIDADES GLOBALES
+// ==========================================
+function updateDateTime(){ document.getElementById('datetime').textContent = new Date().toLocaleString('es-PE'); }
+updateDateTime(); setInterval(updateDateTime, 1000);
+
+function esc(str){
+  if(str===null||str===undefined) return '-';
+  const d=document.createElement('div'); d.textContent=String(str); return d.innerHTML;
+}
+
+function setOnline(){ document.getElementById('statusDot').classList.remove('offline'); document.getElementById('statusText').textContent='En línea'; }
+function setOffline(){ document.getElementById('statusDot').classList.add('offline'); document.getElementById('statusText').textContent='Sin conexión'; }
+
+function showNotif(msg, type='success'){
+  const colors={success:'var(--success)',warning:'#d97706',error:'var(--danger)',info:'var(--blue-2)'};
+  const n=document.createElement('div');
+  n.style.cssText=`position:fixed;top:80px;right:20px;background:${colors[type]||colors.success};color:white;padding:14px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);font-weight:700;font-size:13px;z-index:9999;transition:opacity 0.3s;`;
+  n.textContent=msg; document.body.appendChild(n);
+  setTimeout(()=>{n.style.opacity='0';setTimeout(()=>n.remove(),300);},3500);
+}
+
+function renderPag(containerId, pagActual, totalPag, onChange){
+  const c=document.getElementById(containerId); c.innerHTML='';
+  if(totalPag<=1) return;
+  const mk=(txt,pg,dis=false)=>{
+    const b=document.createElement('button');
+    b.className='page-btn'+(pg===pagActual?' active':'');
+    b.textContent=txt; b.disabled=dis; b.onclick=()=>onChange(pg); return b;
+  };
+  c.appendChild(mk('«',1,pagActual===1)); c.appendChild(mk('‹',pagActual-1,pagActual===1));
+  let s=Math.max(1,pagActual-2),e=Math.min(totalPag,s+4);
+  if(e-s<4) s=Math.max(1,e-4);
+  for(let i=s;i<=e;i++) c.appendChild(mk(i,i));
+  c.appendChild(mk('›',pagActual+1,pagActual===totalPag)); c.appendChild(mk('»',totalPag,pagActual===totalPag));
+}
 </script>
 
 <script>
-// SISTEMA DE MODALES
-const modalOverlay = document.getElementById('modalOverlay');
-const modalTitle = document.getElementById('modalTitle');
-const modalBody = document.getElementById('modalBody');
-const modalFooter = document.getElementById('modalFooter');
+// TABS Y SUB-TABS
+document.querySelectorAll('.side-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.side-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>t.hidden=(t.id!==b.dataset.tab));
+    if(b.dataset.tab==='postulantes'){ pollRegNuevos(); pollRegAtendidos(); pollRecNuevos(); }
+    if(b.dataset.tab==='stats') cargarEstadisticas();
+    if(b.dataset.tab==='usuarios') cargarUsuariosActivos();
+    if(b.dataset.tab==='formulario') cargarEstadoConvocatoria();
+    if(b.dataset.tab==='logs') cargarLogs();
+  });
+});
+document.querySelectorAll('.sub-tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.sub-tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.sub-tab-content').forEach(c=>{c.hidden=(c.id!==btn.dataset.subtab);});
+  });
+});
+['tableWrapperRegistrados','tableWrapperRecibidos'].forEach(id=>{
+  const w=document.getElementById(id); if(!w) return;
+  w.addEventListener('wheel',(e)=>{ if(w.scrollWidth>w.clientWidth&&Math.abs(e.deltaX)<=Math.abs(e.deltaY)){e.preventDefault();w.scrollLeft+=e.deltaY;} },{passive:false});
+});
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden){ pollRegNuevos(); pollRegAtendidos(); pollRecNuevos(); cargarEstadisticas(); }
+});
+</script>
 
-function showModal(config) {
-  return new Promise((resolve) => {
-    modalTitle.textContent = config.title || 'Aviso';
-    
-    let bodyHTML = '';
-    if (config.icon) {
-      const iconClass = config.type || 'info';
-      const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-      };
-      bodyHTML += `<div class="modal-icon ${iconClass}">${icons[iconClass] || icons.info}</div>`;
-    }
-    bodyHTML += `<div style="text-align:center">${config.message || ''}</div>`;
-    modalBody.innerHTML = bodyHTML;
-    
-    modalFooter.innerHTML = '';
-    
-    if (config.type === 'confirm') {
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'modal-btn modal-btn-cancel';
-      btnCancel.textContent = config.cancelText || 'Cancelar';
-      btnCancel.onclick = () => {
-        closeModal();
-        resolve(false);
-      };
-      
-      const btnConfirm = document.createElement('button');
-      btnConfirm.className = `modal-btn modal-btn-${config.confirmClass || 'confirm'}`;
-      btnConfirm.textContent = config.confirmText || 'Aceptar';
-      btnConfirm.onclick = () => {
-        closeModal();
-        resolve(true);
-      };
-      
-      modalFooter.appendChild(btnCancel);
-      modalFooter.appendChild(btnConfirm);
+<script>
+// MODAL
+const modalOverlay=document.getElementById('modalOverlay');
+const modalTitle=document.getElementById('modalTitle');
+const modalBody=document.getElementById('modalBody');
+const modalFooter=document.getElementById('modalFooter');
+function showModal(cfg){
+  return new Promise(resolve=>{
+    modalTitle.textContent=cfg.title||'Aviso';
+    const icons={success:'✓',error:'✕',warning:'⚠',info:'ℹ'};
+    let html=cfg.icon?`<div class="modal-icon ${cfg.type||'info'}">${icons[cfg.type]||'ℹ'}</div>`:'';
+    html+=`<div style="text-align:center">${cfg.message||''}</div>`;
+    modalBody.innerHTML=html; modalFooter.innerHTML='';
+    if(cfg.type==='confirm'){
+      const bc=document.createElement('button'); bc.className='modal-btn modal-btn-cancel'; bc.textContent=cfg.cancelText||'Cancelar'; bc.onclick=()=>{closeModal();resolve(false);};
+      const bo=document.createElement('button'); bo.className=`modal-btn modal-btn-${cfg.confirmClass||'confirm'}`; bo.textContent=cfg.confirmText||'Aceptar'; bo.onclick=()=>{closeModal();resolve(true);};
+      modalFooter.appendChild(bc); modalFooter.appendChild(bo);
     } else {
-      const btnOk = document.createElement('button');
-      btnOk.className = 'modal-btn modal-btn-confirm';
-      btnOk.textContent = 'Aceptar';
-      btnOk.onclick = () => {
-        closeModal();
-        resolve(true);
-      };
-      modalFooter.appendChild(btnOk);
+      const bo=document.createElement('button'); bo.className='modal-btn modal-btn-confirm'; bo.textContent='Aceptar'; bo.onclick=()=>{closeModal();resolve(true);};
+      modalFooter.appendChild(bo);
     }
-    
     modalOverlay.classList.add('active');
   });
 }
+function closeModal(){ modalOverlay.classList.remove('active'); }
+modalOverlay.addEventListener('click',e=>{if(e.target===modalOverlay) closeModal();});
+</script>
 
-function closeModal() {
-  modalOverlay.classList.remove('active');
+<script>
+// REGISTRADOS
+let filasReg=[], filtReg=[], pagReg=1, tamReg=25, maxIdReg=0, idsReg=new Set();
+
+function buildRowReg(p, idx){
+  const tr=document.createElement('tr');
+  tr.dataset.id=p.id; tr.dataset.area=p.area||''; tr.dataset.sexo=p.sexo||'';
+  tr.innerHTML=`
+    <td class="td-num-reg">${idx}</td>
+    <td>${esc(p.area)}</td><td>${esc(p.convocatoria)}</td>
+    <td class="apellidos">${esc(p.apellidos)}</td><td class="nombres">${esc(p.nombres)}</td>
+    <td>${esc(p.tipo_documento)}</td><td class="num-doc">${esc(p.numero_documento)}</td>
+    <td>${esc(p.fecha_nacimiento)}</td><td>${esc(p.sexo)}</td>
+    <td>${esc(p.celular)}</td><td>${esc(p.correo)}</td>
+    <td>${esc(p.fuerzas_armadas)}</td><td>${esc(p.tiene_discapacidad)}</td>
+    <td>${esc(p.tipo_discapacidad)}</td><td>${esc(p.created_at)}</td>
+    <td><button class="btn-delete js-del-registrado" data-id="${p.id}">✕</button></td>`;
+  return tr;
 }
 
-modalOverlay.addEventListener('click', (e) => {
-  if (e.target === modalOverlay) {
-    closeModal();
-  }
-});
-</script>
-
-<script>
-// CREAR USUARIO
-document.getElementById("formUsuario").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const f = e.target;
-
-  const username = f.username.value;
-  const password = f.password.value;
-  const rol = f.rol.value;
-
-  const res = await fetch("/api/crear-usuario", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: username,
-      password: password,
-      rol: rol
-    })
-  });
-
-  const r = await res.json();
-  if (r.ok) {
-    //  Guardar contraseña en cache
-    passwordsMap.set(username, password);
-    
-    await showModal({
-      title: 'Usuario creado',
-      message: `El usuario <strong>${username}</strong> ha sido creado exitosamente.`,
-      icon: true,
-      type: 'success'
-    });
-    
-    const tbody = document.getElementById("usuariosTableBody");
-    const newRow = document.createElement("tr");
-    newRow.className = "new-row";
-    newRow.setAttribute("data-username", username);
-    
-    newRow.innerHTML = `
-      <td class="username">${username}</td>
-      <td class="password-cell">
-        <span class="password-hidden">••••••••</span>
-        <button class="btn-eye js-toggle-password" title="Mostrar contraseña">
-          👁️
-        </button>
-      </td>
-      <td>${rol}</td>
-      <td class="estado-cell">
-        <span class="badge badge-ok">Activo</span>
-      </td>
-      <td class="acciones-cell">
-        <button class="btn btn-activar"
-          style="background:var(--success);color:#fff; opacity:0.4"
-          disabled
-          onclick="activarUsuario('${username}')">
-          Activar
-        </button>
-        <button class="btn btn-danger btn-desactivar"
-          style="opacity:1"
-          onclick="desactivarUsuario('${username}')">
-          Desactivar
-        </button>
-      </td>
-      <td>
-        <button class="btn-delete js-eliminar-usuario" data-username="${username}" title="Eliminar usuario">
-          ✕
-        </button>
-      </td>
-    `;
-    
-    tbody.appendChild(newRow);
-    f.reset();
-  } else {
-    await showModal({
-      title: 'Error',
-      message: r.error || 'No se pudo crear el usuario',
-      icon: true,
-      type: 'error'
-    });
-  }
-});
-</script>
-
-<script>
-// DESACTIVAR USUARIO
-async function desactivarUsuario(username) {
-  const confirmed = await showModal({
-    title: '¿Desactivar usuario?',
-    message: `¿Estás seguro de que deseas desactivar al usuario <strong>${username}</strong>?`,
-    icon: true,
-    type: 'confirm',
-    confirmText: 'Desactivar',
-    cancelText: 'Cancelar',
-    confirmClass: 'danger'
-  });
-  
-  if (!confirmed) return;
-  
-  const res = await fetch("/api/desactivar-usuario", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username })
-  });
-  
-  const r = await res.json();
-  if (r.ok) {
-    const row = document.querySelector(`tr[data-username="${username}"]`);
-    if (row) {
-      const estadoCell = row.querySelector(".estado-cell");
-      estadoCell.innerHTML = '<span class="badge badge-off">Inactivo</span>';
-      
-      const btnActivar = row.querySelector(".btn-activar");
-      const btnDesactivar = row.querySelector(".btn-desactivar");
-      
-      btnActivar.disabled = false;
-      btnActivar.style.opacity = "1";
-      
-      btnDesactivar.disabled = true;
-      btnDesactivar.style.opacity = "0.4";
+async function cargarRegistradosInicial(){
+  try{
+    const res=await fetch('/api/postulantes/registrados');
+    const data=await res.json();
+    if(!data.ok) return;
+    const tbody=document.getElementById('tbodyRegistrados');
+    tbody.innerHTML=''; filasReg=[]; idsReg=new Set();
+    if(!data.items.length){
+      tbody.innerHTML='<tr><td colspan="16" style="text-align:center;padding:20px;color:var(--muted);">No hay postulantes pendientes</td></tr>';
+      document.getElementById('badgeRegistrados').textContent=0;
+      filtReg=[]; actualizarPagReg(); return;
     }
-    
-    await showModal({
-      title: 'Usuario desactivado',
-      message: `El usuario <strong>${username}</strong> ha sido desactivado.`,
-      icon: true,
-      type: 'success'
+    data.items.forEach((p,i)=>{
+      const tr=buildRowReg(p,i+1);
+      tbody.appendChild(tr); filasReg.push(tr); idsReg.add(String(p.id));
+      if(p.id>maxIdReg) maxIdReg=p.id;
     });
-  } else {
-    await showModal({
-      title: 'Error',
-      message: r.error || 'No se pudo desactivar el usuario',
-      icon: true,
-      type: 'error'
-    });
-  }
-}
-</script>
-
-<script>
-// ACTIVAR USUARIO
-async function activarUsuario(username) {
-  const confirmed = await showModal({
-    title: '¿Activar usuario?',
-    message: `¿Estás seguro de que deseas activar al usuario <strong>${username}</strong>?`,
-    icon: true,
-    type: 'confirm',
-    confirmText: 'Activar',
-    cancelText: 'Cancelar',
-    confirmClass: 'success'
-  });
-  
-  if (!confirmed) return;
-  
-  const res = await fetch("/api/activar-usuario", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username })
-  });
-  
-  const r = await res.json();
-  if (r.ok) {
-    const row = document.querySelector(`tr[data-username="${username}"]`);
-    if (row) {
-      const estadoCell = row.querySelector(".estado-cell");
-      estadoCell.innerHTML = '<span class="badge badge-ok">Activo</span>';
-      
-      const btnActivar = row.querySelector(".btn-activar");
-      const btnDesactivar = row.querySelector(".btn-desactivar");
-      
-      btnActivar.disabled = true;
-      btnActivar.style.opacity = "0.4";
-      
-      btnDesactivar.disabled = false;
-      btnDesactivar.style.opacity = "1";
-    }
-    
-    await showModal({
-      title: 'Usuario activado',
-      message: `El usuario <strong>${username}</strong> ha sido activado correctamente.`,
-      icon: true,
-      type: 'success'
-    });
-  } else {
-    await showModal({
-      title: 'Error',
-      message: r.error || 'No se pudo activar el usuario',
-      icon: true,
-      type: 'error'
-    });
-  }
-}
-</script>
-
-<script>
-// ✅ ==========================================
-// ELIMINAR POSTULANTE REGISTRADO (PENDIENTE)
-// ==========================================
-document.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('js-eliminar-registrado')) {
-    const btn = e.target;
-    const id = btn.dataset.id;
-    const row = document.querySelector(`#postulantesRegistradosTableBody tr[data-id="${id}"]`);
-    
-    if (!row) return;
-    
-    const apellidos = row.querySelector('.apellidos')?.textContent || 'este postulante';
-    
-    const confirmed = await showModal({
-      title: '¿Eliminar postulante registrado?',
-      message: `¿Estás seguro de eliminar a <strong>${apellidos}</strong> de los postulantes registrados?<br><br>⚠️ Esta acción eliminará definitivamente al postulante del sistema.`,
-      icon: true,
-      type: 'confirm',
-      confirmText: 'Sí, eliminar',
-      cancelText: 'Cancelar',
-      confirmClass: 'danger'
-    });
-    
-    if (!confirmed) return;
-    
-    try {
-      const res = await fetch(`/api/eliminar/${id}`, {
-        method: 'POST'
-      });
-      
-      const data = await res.json();
-      
-      if (data.ok) {
-        row.classList.add('removing-row');
-        setTimeout(() => {
-          row.remove();
-          renumerarRegistrados();
-          actualizarBadgeRegistrados();
-        }, 300);
-        
-        await showModal({
-          title: 'Postulante eliminado',
-          message: `Se eliminó a <strong>${apellidos}</strong> del sistema.`,
-          icon: true,
-          type: 'success'
-        });
-      } else {
-        await showModal({
-          title: 'Error',
-          message: data.error || 'No se pudo eliminar el postulante',
-          icon: true,
-          type: 'error'
-        });
-      }
-    } catch (err) {
-      await showModal({
-        title: 'Error',
-        message: 'Ocurrió un error de conexión',
-        icon: true,
-        type: 'error'
-      });
-    }
-  }
-});
-
-function actualizarBadgeRegistrados() {
-  const rows = document.querySelectorAll('#postulantesRegistradosTableBody tr');
-  const badge = document.getElementById('badgeRegistrados');
-  if (badge) {
-    badge.textContent = rows.length;
-  }
-}
-</script>
-
-<script>
-// ELIMINAR POSTULANTE RECIBIDO (ADMIN)
-document.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('js-eliminar-postulante')) {
-    const btn = e.target;
-    const id = btn.dataset.id;
-    const row = document.querySelector(`#postulantesTableBody tr[data-id="${id}"]`);
-    
-    if (!row) return;
-    
-    const nombre = row.querySelector('.apellidos').textContent;
-    
-    const confirmed = await showModal({
-      title: '¿Eliminar postulante?',
-      message: `¿Estás seguro de eliminar a <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
-      icon: true,
-      type: 'confirm',
-      confirmText: 'Sí, eliminar',
-      cancelText: 'Cancelar',
-      confirmClass: 'danger'
-    });
-    
-    if (!confirmed) return;
-    
-    try {
-      const res = await fetch(`/api/eliminar/${id}`, {
-        method: 'POST'
-      });
-      
-      const data = await res.json();
-      
-      if (data.ok) {
-        row.classList.add('removing-row');
-        setTimeout(() => {
-          row.remove();
-          renumerarPostulantes();
-          actualizarBadgeRecibidos();
-        }, 300);
-        
-        await showModal({
-          title: 'Postulante eliminado',
-          message: `Se eliminó a <strong>${nombre}</strong> del sistema.`,
-          icon: true,
-          type: 'success'
-        });
-      } else {
-        await showModal({
-          title: 'Error',
-          message: data.error || 'No se pudo eliminar',
-          icon: true,
-          type: 'error'
-        });
-      }
-    } catch (err) {
-      await showModal({
-        title: 'Error',
-        message: 'Ocurrió un error de conexión',
-        icon: true,
-        type: 'error'
-      });
-    }
-  }
-});
-
-function renumerarPostulantes() {
-  const rows = document.querySelectorAll('#postulantesTableBody tr');
-  rows.forEach((row, index) => {
-    const numCell = row.querySelector('.td-num');
-    if (numCell) {
-      numCell.textContent = index + 1;
-    }
-  });
+    filtReg=[...filasReg];
+    document.getElementById('badgeRegistrados').textContent=filasReg.length;
+    actualizarPagReg(); setOnline();
+  }catch(e){console.error('Error carga registrados:',e); setOffline();}
 }
 
-function actualizarBadgeRecibidos() {
-  const rows = document.querySelectorAll('#postulantesTableBody tr');
-  const badge = document.getElementById('badgeRecibidos');
-  if (badge) {
-    badge.textContent = rows.length;
-  }
-}
-</script>
-
-<script>
-// ELIMINAR USUARIO (ADMIN)
-document.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('js-eliminar-usuario')) {
-    const btn = e.target;
-    const username = btn.dataset.username;
-    const row = document.querySelector(`#usuariosTableBody tr[data-username="${username}"]`);
-    
-    if (!row || username === 'admin') return;
-    
-    const nombreUsuario = row.querySelector('.username').textContent;
-    
-    const confirmed = await showModal({
-      title: '¿Eliminar usuario?',
-      message: `¿Estás seguro de eliminar al usuario <strong>${nombreUsuario}</strong>?<br><br>⚠️ Esta acción no se puede deshacer y el usuario no podrá volver a acceder al sistema.`,
-      icon: true,
-      type: 'confirm',
-      confirmText: 'Sí, eliminar',
-      cancelText: 'Cancelar',
-      confirmClass: 'danger'
-    });
-    
-    if (!confirmed) return;
-    
-    try {
-      const res = await fetch('/api/eliminar-usuario', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
-      
-      const data = await res.json();
-      
-      if (data.ok) {
-        row.classList.add('removing-row');
-        setTimeout(() => {
-          row.remove();
-        }, 300);
-        
-        await showModal({
-          title: 'Usuario eliminado',
-          message: `El usuario <strong>${nombreUsuario}</strong> ha sido eliminado del sistema.`,
-          icon: true,
-          type: 'success'
-        });
-      } else {
-        await showModal({
-          title: 'Error',
-          message: data.error || 'No se pudo eliminar el usuario',
-          icon: true,
-          type: 'error'
-        });
-      }
-    } catch (err) {
-      await showModal({
-        title: 'Error',
-        message: 'Ocurrió un error de conexión',
-        icon: true,
-        type: 'error'
-      });
-    }
-  }
-});
-</script>
-
-<script>
-// LIMPIAR LOGS ANTIGUOS
-const btnLimpiarLogs = document.getElementById('btnLimpiarLogs');
-if (btnLimpiarLogs) {
-  btnLimpiarLogs.addEventListener('click', async () => {
-    const confirmed = await showModal({
-      title: '¿Eliminar todos los logs?',
-      message: '⚠️ Se eliminarán <strong>TODOS</strong> los registros de logs del sistema. Esta acción no se puede deshacer.',
-      icon: true,
-      type: 'confirm',
-      confirmText: 'Sí, eliminar todo',
-      cancelText: 'Cancelar',
-      confirmClass: 'danger'
-    });
-    
-    if (!confirmed) return;
-    
-    try {
-      const res = await fetch('/api/limpiar-logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      const data = await res.json();
-      
-      if (data.ok) {
-        await showModal({
-          title: 'Logs eliminados',
-          message: `Se eliminaron <strong>${data.eliminados}</strong> registro(s) del sistema.`,
-          icon: true,
-          type: 'success'
-        });
-        
-        location.reload();
-      } else {
-        await showModal({
-          title: 'Error',
-          message: data.error || 'No se pudieron eliminar los logs',
-          icon: true,
-          type: 'error'
-        });
-      }
-    } catch (err) {
-      await showModal({
-        title: 'Error',
-        message: 'Ocurrió un error de conexión',
-        icon: true,
-        type: 'error'
-      });
-    }
-  });
-}
-</script>
-
-<script>
-// ==========================================
-// POLLING AUTOMÁTICO - ADMIN
-// ==========================================
-let maxIdAdmin = 0;
-
-function initMaxIdAdmin() {
-  const rows = document.querySelectorAll('#postulantesTableBody tr');
-  rows.forEach(row => {
-    const id = parseInt(row.dataset.id);
-    if (id > maxIdAdmin) maxIdAdmin = id;
-  });
-}
-
-initMaxIdAdmin();
-
-function addNewRowAdmin(p) {
-  const tbody = document.getElementById('postulantesTableBody');
-  
-  const tr = document.createElement('tr');
-  tr.className = 'new-row';
-  tr.dataset.id = p.id;
-  
-  const currentRows = tbody.querySelectorAll('tr').length;
-  const rowNum = currentRows + 1;
-  
-  tr.innerHTML = `
-    <td class="td-num">${rowNum}</td>
-    <td>${p.area || '-'}</td>
-    <td>${p.convocatoria}</td>
-    <td class="apellidos">${p.apellidos}</td>
-    <td class="nombres">${p.nombres}</td>
-    <td>${p.tipo_documento}</td>
-    <td>${p.numero_documento}</td>
-    <td>${p.fecha_nacimiento}</td>
-    <td>${p.sexo}</td>
-    <td>${p.celular}</td>
-    <td>${p.correo}</td>
-    <td>${p.fuerzas_armadas || '-'}</td>
-    <td>${p.tiene_discapacidad || '-'}</td>
-    <td>${p.tipo_discapacidad || '-'}</td>
-    <td>${p.created_at}</td>
-    <td>${p.usuario_atendio}</td>
-    <td>${p.fecha_atencion}</td>
-    <td>
-      <button class="btn-delete js-eliminar-postulante" data-id="${p.id}" title="Eliminar postulante">
-        ✕
-      </button>
-    </td>
-  `;
-  
-  tbody.insertBefore(tr, tbody.firstChild);
-  renumerarPostulantes();
-  
-  setTimeout(() => {
-    tr.style.background = '#e6f4ea';
-    setTimeout(() => {
-      tr.style.background = '';
-    }, 2000);
-  }, 10);
-}
-
-async function pollNewPostulantesAdmin() {
-  try {
-    const res = await fetch(`/api/postulantes/atendidos-nuevos?after_id=${maxIdAdmin}`);
-    const data = await res.json();
-    
-    if (data.ok && data.items && data.items.length > 0) {
-      data.items.forEach(p => {
-        addNewRowAdmin(p);
-        if (p.id > maxIdAdmin) maxIdAdmin = p.id;
-        
-        const rowRegistrado = document.querySelector(`#postulantesRegistradosTableBody tr[data-id="${p.id}"]`);
-        if (rowRegistrado) {
-          rowRegistrado.remove();
-          renumerarRegistrados();
+async function pollRegNuevos(){
+  if(document.hidden) return;
+  try{
+    const res=await fetch(`/api/postulantes/pendientes-nuevos?after_id=${maxIdReg}`);
+    const data=await res.json();
+    if(data.ok&&data.items?.length){
+      const tbody=document.getElementById('tbodyRegistrados');
+      const empty=tbody.querySelector('td[colspan]'); if(empty) tbody.innerHTML='';
+      let hay=false;
+      data.items.forEach(p=>{
+        if(!idsReg.has(String(p.id))){
+          const tr=buildRowReg(p,0);
+          tbody.insertBefore(tr,tbody.firstChild);
+          filasReg.unshift(tr); idsReg.add(String(p.id)); hay=true;
         }
+        if(p.id>maxIdReg) maxIdReg=p.id;
       });
-      
-      showNotificationAdmin(`📥 ${data.items.length} nuevo(s) postulante(s) recibido(s)`);
-      actualizarBadgeRecibidos();
+      if(hay){ filtrarRegistrados(false); document.getElementById('badgeRegistrados').textContent=filasReg.length; showNotif(`📝 ${data.items.length} nuevo(s) registrado(s)`,'info'); }
     }
-  } catch (err) {
-    console.error('Error polling admin:', err);
-  }
+    setOnline();
+  }catch(e){console.error('Error poll reg nuevos:',e); setOffline();}
 }
 
-if (document.getElementById('postulantesTableBody')) {
-  setInterval(pollNewPostulantesAdmin, 3000);
+async function pollRegAtendidos(){
+  if(document.hidden||idsReg.size===0) return;
+  try{
+    const idsEnPantalla=[...idsReg].map(Number);
+    const res=await fetch('/api/postulantes/datos-atendidos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:idsEnPantalla})});
+    const data=await res.json();
+    if(!data.ok||!data.items?.length) return;
+    data.items.forEach(p=>{
+      const sid=String(p.id); if(!idsReg.has(sid)) return;
+      const rowReg=document.querySelector(`#tbodyRegistrados tr[data-id="${sid}"]`);
+      if(rowReg){
+        idsReg.delete(sid); filasReg=filasReg.filter(r=>r.dataset.id!==sid); rowReg.remove();
+        filtrarRegistrados(false); document.getElementById('badgeRegistrados').textContent=filasReg.length;
+        if(filasReg.length===0) document.getElementById('tbodyRegistrados').innerHTML='<tr><td colspan="16" style="text-align:center;padding:20px;color:var(--muted);">No hay postulantes pendientes</td></tr>';
+      }
+      if(!document.querySelector(`#tbodyRecibidos tr[data-id="${sid}"]`)){
+        const tbodyRec=document.getElementById('tbodyRecibidos');
+        const empty=tbodyRec.querySelector('td[colspan]'); if(empty) tbodyRec.innerHTML='';
+        const tr=buildRowRec(p); tr.classList.add('highlight-new');
+        tbodyRec.insertBefore(tr,tbodyRec.firstChild); filasRec.unshift(tr);
+        if(p.id>maxIdRec) maxIdRec=p.id;
+        filtrarRecibidos(false); document.getElementById('badgeRecibidos').textContent=filasRec.length;
+        showNotif(`✅ ${p.apellidos} atendido por ${p.usuario_atendio}`,'success');
+      }
+    });
+  }catch(e){console.error('Error poll reg atendidos:',e);}
 }
 
-// POLLING PARA POSTULANTES REGISTRADOS
-let maxIdRegistrados = 0;
-
-function initMaxIdRegistrados() {
-  const rows = document.querySelectorAll('#postulantesRegistradosTableBody tr');
-  rows.forEach(row => {
-    const id = parseInt(row.dataset.id);
-    if (id > maxIdRegistrados) maxIdRegistrados = id;
+function filtrarRegistrados(reset=true){
+  const txt=document.getElementById('searchRegistrados').value.toLowerCase();
+  const sx=document.getElementById('filtroSexoReg').value;
+  const ar=document.getElementById('filtroAreaReg').value;
+  filtReg=filasReg.filter(r=>{
+    const ap=r.querySelector('.apellidos')?.textContent.toLowerCase()||'';
+    const nb=r.querySelector('.nombres')?.textContent.toLowerCase()||'';
+    const dc=r.querySelector('.num-doc')?.textContent.toLowerCase()||'';
+    return(!txt||ap.includes(txt)||nb.includes(txt)||dc.includes(txt))&&(!sx||r.dataset.sexo===sx)&&(!ar||r.dataset.area===ar);
   });
+  if(reset) pagReg=1; actualizarPagReg();
+}
+function limpiarFiltrosRegistrados(){ document.getElementById('searchRegistrados').value=''; document.getElementById('filtroSexoReg').value=''; document.getElementById('filtroAreaReg').value=''; filtrarRegistrados(); }
+function actualizarPagReg(){
+  const total=filtReg.length, totalPag=Math.ceil(total/tamReg)||1;
+  if(pagReg>totalPag) pagReg=totalPag;
+  const ini=(pagReg-1)*tamReg, fin=Math.min(ini+tamReg,total);
+  filasReg.forEach(r=>r.style.display='none');
+  filtReg.slice(ini,fin).forEach((r,i)=>{r.style.display=''; const c=r.querySelector('.td-num-reg'); if(c) c.textContent=ini+i+1;});
+  document.getElementById('countRegistrados').textContent=`${total} resultado${total!==1?'s':''}`;
+  document.getElementById('infoRegistrados').textContent=total>0?`Mostrando ${ini+1}–${fin} de ${total}`:'Sin resultados';
+  renderPag('botonesRegistrados',pagReg,totalPag,pg=>{pagReg=pg;actualizarPagReg();});
+}
+function cambiarPagReg(){ tamReg=parseInt(document.getElementById('pageSizeReg').value); pagReg=1; actualizarPagReg(); }
+
+cargarRegistradosInicial();
+setInterval(pollRegNuevos, 3000);
+setTimeout(()=>setInterval(pollRegAtendidos, 3000), 1500);
+</script>
+
+<script>
+// RECIBIDOS
+let filasRec=[], filtRec=[], pagRec=1, tamRec=25, maxIdRec=0;
+
+function buildRowRec(p){
+  const tr=document.createElement('tr');
+  tr.dataset.id=p.id; tr.dataset.area=p.area||''; tr.dataset.sexo=p.sexo||'';
+  tr.innerHTML=`
+    <td class="td-num"></td>
+    <td>${esc(p.area)}</td><td>${esc(p.convocatoria)}</td>
+    <td class="apellidos">${esc(p.apellidos)}</td><td class="nombres">${esc(p.nombres)}</td>
+    <td>${esc(p.tipo_documento)}</td><td class="num-doc">${esc(p.numero_documento)}</td>
+    <td>${esc(p.fecha_nacimiento)}</td><td>${esc(p.sexo)}</td>
+    <td>${esc(p.celular)}</td><td>${esc(p.correo)}</td>
+    <td>${esc(p.fuerzas_armadas)}</td><td>${esc(p.tiene_discapacidad)}</td>
+    <td>${esc(p.tipo_discapacidad)}</td><td>${esc(p.created_at)}</td>
+    <td>${esc(p.usuario_atendio)}</td><td>${esc(p.fecha_atencion)}</td>
+    <td><button class="btn-delete js-del-recibido" data-id="${p.id}">✕</button></td>`;
+  return tr;
 }
 
-initMaxIdRegistrados();
-
-function addNewRowRegistrados(p) {
-  const tbody = document.getElementById('postulantesRegistradosTableBody');
-  
-  const emptyRow = tbody.querySelector('#emptyRowRegistrados');
-  if (emptyRow) emptyRow.remove();
-  
-  const tr = document.createElement('tr');
-  tr.dataset.id = p.id;
-  
-  const currentRows = tbody.querySelectorAll('tr').length;
-  const rowNum = currentRows + 1;
-  
-  tr.innerHTML = `
-    <td class="td-num-reg">${rowNum}</td>
-    <td>${p.area || '-'}</td>
-    <td>${p.convocatoria}</td>
-    <td class="apellidos">${p.apellidos}</td>
-    <td class="nombres">${p.nombres}</td>
-    <td>${p.tipo_documento}</td>
-    <td>${p.numero_documento}</td>
-    <td>${p.fecha_nacimiento}</td>
-    <td>${p.sexo}</td>
-    <td>${p.celular}</td>
-    <td>${p.correo}</td>
-    <td>${p.fuerzas_armadas || '-'}</td>
-    <td>${p.tiene_discapacidad || '-'}</td>
-    <td>${p.tipo_discapacidad || '-'}</td>
-    <td>${p.created_at}</td>
-    <td>
-      <button class="btn-delete js-eliminar-registrado" data-id="${p.id}" title="Eliminar postulante">
-        ✕
-      </button>
-    </td>
-  `;
-  
-  tbody.insertBefore(tr, tbody.firstChild);
-  renumerarRegistrados();
-  
-  setTimeout(() => {
-    tr.style.background = '#e6f4ea';
-    setTimeout(() => {
-      tr.style.background = '';
-    }, 2000);
-  }, 10);
-}
-
-function renumerarRegistrados() {
-  const rows = document.querySelectorAll('#postulantesRegistradosTableBody tr');
-  rows.forEach((row, index) => {
-    const numCell = row.querySelector('.td-num-reg');
-    if (numCell) {
-      numCell.textContent = index + 1;
+async function cargarRecibidosInicial(){
+  try{
+    const res=await fetch('/api/postulantes/atendidos-nuevos?after_id=0');
+    const data=await res.json();
+    const tbody=document.getElementById('tbodyRecibidos');
+    tbody.innerHTML=''; filasRec=[];
+    if(!data.ok||!data.items.length){
+      tbody.innerHTML='<tr><td colspan="18" style="text-align:center;padding:20px;color:var(--muted);">No hay postulantes recibidos aún</td></tr>';
+      document.getElementById('badgeRecibidos').textContent=0;
+      filtRec=[]; actualizarPagRec(); return;
     }
-  });
-  
-  const badge = document.getElementById('badgeRegistrados');
-  if (badge) {
-    badge.textContent = rows.length;
-  }
+    data.items.forEach(p=>{ const tr=buildRowRec(p); tbody.appendChild(tr); filasRec.push(tr); if(p.id>maxIdRec) maxIdRec=p.id; });
+    filtRec=[...filasRec]; document.getElementById('badgeRecibidos').textContent=filasRec.length;
+    actualizarPagRec(); setOnline();
+  }catch(e){console.error('Error carga recibidos:',e); setOffline();}
 }
 
-async function pollPostulantesRegistrados() {
-  try {
-    const res = await fetch(`/api/postulantes/pendientes-nuevos?after_id=${maxIdRegistrados}`);
-    const data = await res.json();
-    
-    if (data.ok && data.items && data.items.length > 0) {
-      data.items.forEach(p => {
-        addNewRowRegistrados(p);
-        if (p.id > maxIdRegistrados) maxIdRegistrados = p.id;
+async function pollRecNuevos(){
+  if(document.hidden) return;
+  try{
+    const res=await fetch(`/api/postulantes/atendidos-nuevos?after_id=${maxIdRec}`);
+    const data=await res.json();
+    if(data.ok&&data.items?.length){
+      const tbody=document.getElementById('tbodyRecibidos');
+      const empty=tbody.querySelector('td[colspan]'); if(empty) tbody.innerHTML='';
+      let hayNuevos=false;
+      data.items.forEach(p=>{
+        if(document.querySelector(`#tbodyRecibidos tr[data-id="${p.id}"]`)) return;
+        if(p.id>maxIdRec) maxIdRec=p.id;
+        const tr=buildRowRec(p); tr.classList.add('highlight-new');
+        tbody.insertBefore(tr,tbody.firstChild); filasRec.unshift(tr); hayNuevos=true;
       });
-      
-      showNotificationAdmin(`📝 ${data.items.length} nuevo(s) postulante(s) registrado(s)`);
+      data.items.forEach(p=>{ if(p.id>maxIdRec) maxIdRec=p.id; });
+      if(hayNuevos){ filtrarRecibidos(false); document.getElementById('badgeRecibidos').textContent=filasRec.length; }
     }
-  } catch (err) {
-    console.error('Error polling registrados:', err);
+    setOnline();
+  }catch(e){console.error('Error poll recibidos:',e); setOffline();}
+}
+
+function filtrarRecibidos(reset=true){
+  const txt=document.getElementById('searchRecibidos').value.toLowerCase();
+  const sx=document.getElementById('filtroSexoRec').value;
+  const ar=document.getElementById('filtroAreaRec').value;
+  filtRec=filasRec.filter(r=>{
+    const ap=r.querySelector('.apellidos')?.textContent.toLowerCase()||'';
+    const nb=r.querySelector('.nombres')?.textContent.toLowerCase()||'';
+    const dc=r.querySelector('.num-doc')?.textContent.toLowerCase()||'';
+    return(!txt||ap.includes(txt)||nb.includes(txt)||dc.includes(txt))&&(!sx||r.dataset.sexo===sx)&&(!ar||r.dataset.area===ar);
+  });
+  if(reset) pagRec=1; actualizarPagRec();
+}
+function limpiarFiltrosRecibidos(){ document.getElementById('searchRecibidos').value=''; document.getElementById('filtroSexoRec').value=''; document.getElementById('filtroAreaRec').value=''; filtrarRecibidos(); }
+function actualizarPagRec(){
+  const total=filtRec.length, totalPag=Math.ceil(total/tamRec)||1;
+  if(pagRec>totalPag) pagRec=totalPag;
+  const ini=(pagRec-1)*tamRec, fin=Math.min(ini+tamRec,total);
+  filasRec.forEach(r=>r.style.display='none');
+  filtRec.slice(ini,fin).forEach((r,i)=>{r.style.display=''; const c=r.querySelector('.td-num'); if(c) c.textContent=ini+i+1;});
+  document.getElementById('countRecibidos').textContent=`${total} resultado${total!==1?'s':''}`;
+  document.getElementById('infoRecibidos').textContent=total>0?`Mostrando ${ini+1}–${fin} de ${total}`:'Sin resultados';
+  renderPag('botonesRecibidos',pagRec,totalPag,pg=>{pagRec=pg;actualizarPagRec();});
+}
+function cambiarPagRec(){ tamRec=parseInt(document.getElementById('pageSizeRec').value); pagRec=1; actualizarPagRec(); }
+
+cargarRecibidosInicial();
+setInterval(pollRecNuevos, 4000);
+</script>
+
+<script>
+// ELIMINAR POSTULANTES
+document.addEventListener('click', async e=>{
+  if(e.target.classList.contains('js-del-registrado')){
+    const id=e.target.dataset.id;
+    const row=document.querySelector(`#tbodyRegistrados tr[data-id="${id}"]`); if(!row) return;
+    const nombre=row.querySelector('.apellidos')?.textContent||'este postulante';
+    const ok=await showModal({title:'¿Eliminar postulante?',message:`¿Eliminar a <strong>${esc(nombre)}</strong>?`,icon:true,type:'confirm',confirmText:'Sí, eliminar',cancelText:'Cancelar',confirmClass:'danger'});
+    if(!ok) return;
+    const res=await fetch(`/api/eliminar/${id}`,{method:'POST',headers:csrfHeaders()});
+    const data=await res.json();
+    if(data.ok){
+      idsReg.delete(String(id)); filasReg=filasReg.filter(r=>r.dataset.id!==id); row.remove();
+      filtrarRegistrados(false); document.getElementById('badgeRegistrados').textContent=filasReg.length;
+      if(filasReg.length===0) document.getElementById('tbodyRegistrados').innerHTML='<tr><td colspan="16" style="text-align:center;padding:20px;color:var(--muted);">No hay postulantes pendientes</td></tr>';
+      await showModal({title:'Eliminado',message:`<strong>${esc(nombre)}</strong> eliminado.`,icon:true,type:'success'});
+    } else { await showModal({title:'Error',message:data.error||'No se pudo eliminar.',icon:true,type:'error'}); }
   }
+  if(e.target.classList.contains('js-del-recibido')){
+    const id=e.target.dataset.id;
+    const row=document.querySelector(`#tbodyRecibidos tr[data-id="${id}"]`); if(!row) return;
+    const nombre=row.querySelector('.apellidos')?.textContent||'';
+    const ok=await showModal({title:'¿Eliminar postulante?',message:`¿Eliminar a <strong>${esc(nombre)}</strong>?`,icon:true,type:'confirm',confirmText:'Sí, eliminar',cancelText:'Cancelar',confirmClass:'danger'});
+    if(!ok) return;
+    const res=await fetch(`/api/eliminar/${id}`,{method:'POST',headers:csrfHeaders()});
+    const data=await res.json();
+    if(data.ok){
+      filasRec=filasRec.filter(r=>r.dataset.id!==id); row.remove();
+      filtrarRecibidos(false); document.getElementById('badgeRecibidos').textContent=filasRec.length;
+      if(filasRec.length===0) document.getElementById('tbodyRecibidos').innerHTML='<tr><td colspan="18" style="text-align:center;padding:20px;color:var(--muted);">No hay postulantes recibidos aún</td></tr>';
+      await showModal({title:'Eliminado',message:`<strong>${esc(nombre)}</strong> eliminado.`,icon:true,type:'success'});
+    } else { await showModal({title:'Error',message:data.error||'No se pudo eliminar.',icon:true,type:'error'}); }
+  }
+});
+</script>
+
+<script>
+// USUARIOS
+let filasUsr=[], filtUsr=[], pagUsr=1, tamUsr=10;
+function initUsuarios(){ filasUsr=Array.from(document.querySelectorAll('#tbodyUsuarios tr[data-username]')); filtUsr=[...filasUsr]; actualizarPagUsr(); }
+function filtrarUsuarios(){
+  const txt=document.getElementById('searchUsuarios').value.toLowerCase();
+  const rol=document.getElementById('filtroRolUsr').value;
+  filtUsr=filasUsr.filter(r=>{ const u=r.querySelector('.td-username')?.textContent.toLowerCase()||''; return(!txt||u.includes(txt))&&(!rol||r.dataset.rol===rol); });
+  pagUsr=1; actualizarPagUsr();
+}
+function limpiarFiltrosUsuarios(){ document.getElementById('searchUsuarios').value=''; document.getElementById('filtroRolUsr').value=''; filtrarUsuarios(); }
+function actualizarPagUsr(){
+  const total=filtUsr.length, totalPag=Math.ceil(total/tamUsr)||1;
+  if(pagUsr>totalPag) pagUsr=totalPag;
+  const ini=(pagUsr-1)*tamUsr, fin=Math.min(ini+tamUsr,total);
+  filasUsr.forEach(r=>r.style.display='none'); filtUsr.slice(ini,fin).forEach(r=>r.style.display='');
+  document.getElementById('countUsuarios').textContent=`${total} resultado${total!==1?'s':''}`;
+  document.getElementById('infoUsuarios').textContent=total>0?`Mostrando ${ini+1}–${fin} de ${total}`:'Sin resultados';
+  renderPag('botonesUsuarios',pagUsr,totalPag,pg=>{pagUsr=pg;actualizarPagUsr();});
+}
+function cambiarPagUsr(){ tamUsr=parseInt(document.getElementById('pageSizeUsr').value); pagUsr=1; actualizarPagUsr(); }
+initUsuarios();
+
+document.addEventListener('click', async e=>{
+  if(!e.target.classList.contains('js-del-usuario')) return;
+  const username=e.target.dataset.username; if(username==='admin') return;
+  const row=document.querySelector(`#tbodyUsuarios tr[data-username="${username}"]`);
+  const ok=await showModal({title:'¿Eliminar usuario?',message:`¿Eliminar a <strong>${esc(username)}</strong>?`,icon:true,type:'confirm',confirmText:'Sí, eliminar',cancelText:'Cancelar',confirmClass:'danger'});
+  if(!ok) return;
+  const res=await fetch('/api/eliminar-usuario',{method:'POST',headers:csrfHeaders(),body:JSON.stringify({username})});
+  const data=await res.json();
+  if(data.ok){ filasUsr=filasUsr.filter(r=>r.dataset.username!==username); row?.remove(); filtrarUsuarios(); await showModal({title:'Eliminado',message:`Usuario <strong>${esc(username)}</strong> eliminado.`,icon:true,type:'success'}); }
+  else { await showModal({title:'Error',message:data.error||'No se pudo eliminar.',icon:true,type:'error'}); }
+});
+
+document.getElementById('formUsuario').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const f=e.target;
+  const btn=f.querySelector('button[type=submit]');
+  const username=f.username.value.trim(), password=f.password.value, rol=f.rol.value;
+  if(!rol){ await showModal({title:'Error',message:'Selecciona un rol.',icon:true,type:'error'}); return; }
+  btn.disabled=true;
+  const res=await fetch('/api/crear-usuario',{method:'POST',headers:csrfHeaders(),body:JSON.stringify({username,password,rol})});
+  btn.disabled=false;
+  const r=await res.json();
+  if(r.ok){
+    await showModal({title:'Usuario creado',message:`<strong>${esc(username)}</strong> creado exitosamente.`,icon:true,type:'success'});
+    const tbody=document.getElementById('tbodyUsuarios');
+    const newRow=document.createElement('tr');
+    newRow.dataset.username=username; newRow.dataset.rol=rol;
+    newRow.innerHTML=`
+      <td class="td-username"></td>
+      <td class="td-rol"></td>
+      <td class="td-estado"><span class="badge badge-ok">Activo</span></td>
+      <td class="td-conexion">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="conexion-dot" style="background:#f87171;" title="Desconectado"></div>
+          <span class="conexion-label" style="font-size:11px;color:var(--muted);">Desconectado</span>
+        </div>
+      </td>
+      <td><button class="btn" style="background:#7c3aed;color:white;" onclick="cambiarPassword('${username}')">🔑 Cambiar</button></td>
+      <td class="td-acciones">
+        <button class="btn btn-activar" style="background:var(--success);color:#fff;opacity:0.4" disabled>Activar</button>
+        <button class="btn btn-danger btn-desactivar">Desactivar</button>
+      </td>
+      <td><button class="btn-delete js-del-usuario" data-username=""></button></td>`;
+    newRow.querySelector('.td-username').textContent=username;
+    newRow.querySelector('.td-rol').textContent=rol;
+    newRow.querySelector('.btn-desactivar').onclick=()=>desactivarUsuario(username);
+    newRow.querySelector('.btn-activar').onclick=()=>activarUsuario(username);
+    const delBtn=newRow.querySelector('.js-del-usuario'); delBtn.dataset.username=username; delBtn.textContent='✕';
+    tbody.appendChild(newRow); filasUsr.push(newRow); filtrarUsuarios(); f.reset();
+  } else { await showModal({title:'Error',message:r.error||'No se pudo crear el usuario',icon:true,type:'error'}); }
+});
+
+async function cambiarPassword(username) {
+  const nueva = prompt(`Nueva contraseña para "${username}":`);
+  if (!nueva || !nueva.trim()) return;
+  const res = await fetch('/api/cambiar-password', {
+    method: 'POST',
+    headers: csrfHeaders(),
+    body: JSON.stringify({ username, password: nueva.trim() })
+  });
+  const data = await res.json();
+  if (data.ok) showNotif(`✅ Contraseña de ${username} actualizada`, 'success');
+  else await showModal({ title: 'Error', message: data.error || 'No se pudo cambiar.', icon: true, type: 'error' });
 }
 
-if (document.getElementById('postulantesRegistradosTableBody')) {
-  setInterval(pollPostulantesRegistrados, 3000);
+async function desactivarUsuario(username){
+  const ok=await showModal({title:'¿Desactivar?',message:`¿Desactivar a <strong>${esc(username)}</strong>?`,icon:true,type:'confirm',confirmText:'Desactivar',cancelText:'Cancelar',confirmClass:'danger'});
+  if(!ok) return;
+  const res=await fetch('/api/desactivar-usuario',{method:'POST',headers:csrfHeaders(),body:JSON.stringify({username})});
+  const r=await res.json();
+  if(r.ok){
+    const row=document.querySelector(`tr[data-username="${username}"]`);
+    if(row){ row.querySelector('.td-estado').innerHTML='<span class="badge badge-off">Inactivo</span>'; const ba=row.querySelector('.btn-activar'),bd=row.querySelector('.btn-desactivar'); if(ba){ba.disabled=false;ba.style.opacity='1';} if(bd){bd.disabled=true;bd.style.opacity='0.4';} }
+    await showModal({title:'Desactivado',message:`<strong>${esc(username)}</strong> desactivado.`,icon:true,type:'success'});
+  } else { await showModal({title:'Error',message:r.error||'No se pudo desactivar.',icon:true,type:'error'}); }
 }
-
-function showNotificationAdmin(message) {
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    background: linear-gradient(135deg, #0f9d58 0%, #0d7d46 100%);
-    color: white;
-    padding: 14px 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    font-weight: 700;
-    font-size: 13px;
-    z-index: 9999;
-    animation: slideInRight 0.3s ease-out;
-  `;
-  notification.textContent = message;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.3s ease-out';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
+async function activarUsuario(username){
+  const ok=await showModal({title:'¿Activar?',message:`¿Activar a <strong>${esc(username)}</strong>?`,icon:true,type:'confirm',confirmText:'Activar',cancelText:'Cancelar',confirmClass:'success'});
+  if(!ok) return;
+  const res=await fetch('/api/activar-usuario',{method:'POST',headers:csrfHeaders(),body:JSON.stringify({username})});
+  const r=await res.json();
+  if(r.ok){
+    const row=document.querySelector(`tr[data-username="${username}"]`);
+    if(row){ row.querySelector('.td-estado').innerHTML='<span class="badge badge-ok">Activo</span>'; const ba=row.querySelector('.btn-activar'),bd=row.querySelector('.btn-desactivar'); if(ba){ba.disabled=true;ba.style.opacity='0.4';} if(bd){bd.disabled=false;bd.style.opacity='1';} }
+    await showModal({title:'Activado',message:`<strong>${esc(username)}</strong> activado.`,icon:true,type:'success'});
+  } else { await showModal({title:'Error',message:r.error||'No se pudo activar.',icon:true,type:'error'}); }
 }
 </script>
 
 <script>
-// ==========================================
-// CARGAR ESTADÍSTICAS 
-// ==========================================
-async function cargarEstadisticas() {
-  try {
-    const res = await fetch('/api/estadisticas');
-    const data = await res.json();
-    
-    if (data.ok) {
-      // Actualizar Postulantes por Género
-      document.getElementById('statMujeresRegistradas').textContent = data.registrados_mujeres || 0;
-      document.getElementById('statHombresRegistrados').textContent = data.registrados_hombres || 0;
-      document.getElementById('statMujeresRecibidas').textContent = data.recibidos_mujeres || 0;
-      document.getElementById('statHombresRecibidos').textContent = data.recibidos_hombres || 0;
-      
-      // ✅ Actualizar Estadísticas por Área
-      if (data.por_area) {
-        const statsAreasContainer = document.getElementById('statsAreas');
-        statsAreasContainer.innerHTML = '';
-        
-        const areaNames = {
-          'GGRD': 'Gerencia de Gestión del Riesgo de Desastres',
-          'GSCGA': 'Gerencia de Servicios a la Ciudad y Gestión Ambiental',
-          'GFC': 'Gerencia de Fiscalización y Control',
-          'GSC': 'Gerencia de Seguridad Ciudadana',
-          'GDE': 'Gerencia de Desarrollo Económico'
-        };
-        
-        const areaIcons = {
-          'GGRD': '🚨',
-          'GSCGA': '🌿',
-          'GFC': '👮',
-          'GSC': '🛡️',
-          'GDE': '💼'
-        };
-        
-        const areaColors = {
-          'GGRD': { bg: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', primary: '#dc2626', secondary: '#991b1b' },
-          'GSCGA': { bg: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)', primary: '#10b981', secondary: '#047857' },
-          'GFC': { bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', primary: '#3b82f6', secondary: '#1e40af' },
-          'GSC': { bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', primary: '#8b5cf6', secondary: '#6d28d9' },
-          'GDE': { bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', primary: '#f59e0b', secondary: '#d97706' }
-        };
-        
-        Object.entries(data.por_area).forEach(([codigo, total]) => {
-          const card = document.createElement('div');
-          const colors = areaColors[codigo] || areaColors['GGRD'];
-          
-          card.style.cssText = `
-            background: ${colors.bg};
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          `;
-          
-          card.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-              <div style="width: 48px; height: 48px; background: ${colors.primary}; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">
-                ${areaIcons[codigo] || '📋'}
-              </div>
-              <div style="flex: 1;">
-                <div style="font-size: 13px; font-weight: 700; color: ${colors.secondary};">${areaNames[codigo] || codigo}</div>
-                <div style="font-size: 11px; color: ${colors.primary};">Total postulantes</div>
-              </div>
-            </div>
-            <div style="font-size: 36px; font-weight: 800; color: ${colors.primary};">${total}</div>
-            <div style="font-size: 11px; color: ${colors.primary}; margin-top: 4px;">postulantes</div>
-          `;
-          
-          statsAreasContainer.appendChild(card);
-        });
-      }
+// LOGS — cargados via API con paginación servidor
+let pagLog=1, tamLog=25, totalLogs=0, busquedaLog='', _logTimer=null;
+
+async function cargarLogs(reset=true){
+  if(reset) pagLog=1;
+  const tbody=document.getElementById('tbodyLogs');
+  tbody.innerHTML='<tr><td colspan="3" style="text-align:center;padding:18px;color:var(--muted);">⏳ Cargando...</td></tr>';
+  try{
+    const params=new URLSearchParams({pagina:pagLog,tam:tamLog,buscar:busquedaLog});
+    const res=await fetch('/api/logs?'+params);
+    const data=await res.json();
+    if(!data.ok) return;
+    totalLogs=data.total;
+    tbody.innerHTML='';
+    if(!data.items.length){
+      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;padding:18px;color:var(--muted);">No hay logs</td></tr>';
+    } else {
+      data.items.forEach(l=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${esc(l.fecha)}</td><td>${esc(l.usuario)}</td><td>${esc(l.accion)}</td>`;
+        tbody.appendChild(tr);
+      });
     }
-  } catch (err) {
-    console.error('Error cargando estadísticas:', err);
-  }
+    const total=totalLogs;
+    const totalPag=Math.ceil(total/tamLog)||1;
+    const ini=(pagLog-1)*tamLog+1, fin=Math.min(pagLog*tamLog,total);
+    document.getElementById('countLogs').textContent=`${total} resultado${total!==1?'s':''}`;
+    document.getElementById('infoLogs').textContent=total>0?`Mostrando ${ini}–${fin} de ${total}`:'Sin resultados';
+    renderPag('botonesLogs',pagLog,totalPag,pg=>{pagLog=pg;cargarLogs(false);});
+  }catch(e){console.error('Error logs:',e);}
 }
 
+function buscarLogs(){
+  clearTimeout(_logTimer);
+  _logTimer=setTimeout(()=>{ busquedaLog=document.getElementById('searchLogs').value.trim(); cargarLogs(); },400);
+}
+function limpiarFiltrosLogs(){ document.getElementById('searchLogs').value=''; busquedaLog=''; cargarLogs(); }
+function cambiarPagLog(){ tamLog=parseInt(document.getElementById('pageSizeLog').value); cargarLogs(); }
+
+cargarLogs();
+
+document.getElementById('btnLimpiarLogs').addEventListener('click', async()=>{
+  const ok=await showModal({title:'¿Eliminar todos los logs?',message:'⚠️ Se eliminarán TODOS los logs. No se puede deshacer.',icon:true,type:'confirm',confirmText:'Sí, eliminar todo',cancelText:'Cancelar',confirmClass:'danger'});
+  if(!ok) return;
+  const res=await fetch('/api/limpiar-logs',{method:'POST',headers:csrfHeaders()});
+  const data=await res.json();
+  if(data.ok){
+    await showModal({title:'Logs eliminados',message:`Se eliminaron <strong>${data.eliminados}</strong> registro(s).`,icon:true,type:'success'});
+    busquedaLog=''; document.getElementById('searchLogs').value=''; cargarLogs();
+  }
+});
+</script>
+
+<script>
+// ESTADÍSTICAS
+const AREA_CFG={
+  GGRD: {nombre:'Gestión del Riesgo de Desastres',icon:'🚨',bg:'linear-gradient(135deg,#fee2e2,#fecaca)',primary:'#dc2626',secondary:'#991b1b'},
+  GSCGA:{nombre:'Servicios a la Ciudad y Gestión Ambiental',icon:'🌿',bg:'linear-gradient(135deg,#d1fae5,#a7f3d0)',primary:'#10b981',secondary:'#047857'},
+  GFC:  {nombre:'Fiscalización y Control',icon:'👮',bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',primary:'#3b82f6',secondary:'#1e40af'},
+  GSC:  {nombre:'Seguridad Ciudadana',icon:'🛡️',bg:'linear-gradient(135deg,#ede9fe,#ddd6fe)',primary:'#8b5cf6',secondary:'#6d28d9'},
+  GDE:  {nombre:'Desarrollo Económico',icon:'💼',bg:'linear-gradient(135deg,#fef3c7,#fde68a)',primary:'#f59e0b',secondary:'#d97706'}
+};
+
+async function cargarEstadisticas(){
+  if(document.hidden) return;
+  try{
+    const res=await fetch('/api/estadisticas');
+    const data=await res.json();
+    if(!data.ok) return;
+    document.getElementById('statMujeresRegistradas').textContent=data.registrados_mujeres||0;
+    document.getElementById('statHombresRegistrados').textContent=data.registrados_hombres||0;
+    document.getElementById('statMujeresRecibidas').textContent=data.recibidos_mujeres||0;
+    document.getElementById('statHombresRecibidos').textContent=data.recibidos_hombres||0;
+    if(data.por_area){
+      const container=document.getElementById('statsAreas'); container.innerHTML='';
+      Object.entries(data.por_area).forEach(([codigo,total])=>{
+        const cfg=AREA_CFG[codigo]||{nombre:codigo,icon:'📋',bg:'linear-gradient(135deg,#f3f4f6,#e5e7eb)',primary:'#6b7280',secondary:'#374151'};
+        const card=document.createElement('div');
+        card.style.cssText=`background:${cfg.bg};border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.1);`;
+        card.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><div style="width:48px;height:48px;background:${cfg.primary};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;color:white;">${cfg.icon}</div><div><div class="area-nombre" style="font-size:13px;font-weight:700;color:${cfg.secondary};"></div><div style="font-size:11px;color:${cfg.primary};">Total postulantes</div></div></div><div style="font-size:36px;font-weight:800;color:${cfg.primary};">${Number(total)}</div>`;
+        card.querySelector('.area-nombre').textContent=cfg.nombre;
+        container.appendChild(card);
+      });
+    }
+  }catch(e){console.error('Error estadísticas:',e);}
+}
 cargarEstadisticas();
 setInterval(cargarEstadisticas, 5000);
+</script>
+
+<script>
+// CONVOCATORIA
+let convActiva = true;
+
+async function cargarEstadoConvocatoria() {
+  try {
+    const res = await fetch('/api/convocatoria/estado');
+    const data = await res.json();
+    if (data.ok) aplicarEstadoConvocatoria(data.activa);
+  } catch(e) { console.error('Error cargando estado convocatoria:', e); }
+}
+
+function aplicarEstadoConvocatoria(activa) {
+  convActiva = activa;
+  const dot    = document.getElementById('convDot');
+  const label  = document.getElementById('convEstadoLabel');
+  const desc   = document.getElementById('convDesc');
+  const card   = document.getElementById('convCard');
+  const btnCerrar = document.getElementById('btnCerrarConv');
+  const btnAbrir  = document.getElementById('btnAbrirConv');
+
+  if (activa) {
+    dot.style.background = '#22c55e';
+    dot.style.boxShadow  = '0 0 0 4px rgba(34,197,94,0.2)';
+    label.textContent    = 'CONVOCATORIA ABIERTA';
+    label.style.color    = '#15803d';
+    desc.textContent     = 'El formulario público está activo. Los ciudadanos pueden registrar su postulación.';
+    card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+    btnCerrar.style.display = '';
+    btnAbrir.style.display  = 'none';
+  } else {
+    dot.style.background = '#b00020';
+    dot.style.boxShadow  = '0 0 0 4px rgba(176,0,32,0.2)';
+    label.textContent    = 'CONVOCATORIA CERRADA';
+    label.style.color    = '#b00020';
+    desc.textContent     = 'El formulario público está desactivado. Ningún ciudadano puede registrarse en este momento.';
+    card.style.boxShadow = '0 12px 40px rgba(176,0,32,0.2)';
+    btnCerrar.style.display = 'none';
+    btnAbrir.style.display  = '';
+  }
+  const ahora = new Date().toLocaleString('es-PE');
+  document.getElementById('convUltimoUpdate').textContent = ahora;
+}
+
+async function cambiarEstadoConvocatoria(nuevoEstado) {
+  const msg = nuevoEstado
+    ? '¿Deseas <strong>ABRIR</strong> la convocatoria?<br><br>Los ciudadanos podrán registrarse nuevamente.'
+    : '¿Deseas <strong>CERRAR</strong> la convocatoria?<br><br>Ningún ciudadano podrá registrarse hasta que la vuelvas a abrir.';
+
+  const ok = await showModal({
+    title: nuevoEstado ? '🔓 Abrir convocatoria' : '🔒 Cerrar convocatoria',
+    message: msg, icon: true, type: 'confirm',
+    confirmText: nuevoEstado ? 'Sí, abrir' : 'Sí, cerrar',
+    cancelText: 'Cancelar',
+    confirmClass: nuevoEstado ? 'success' : 'danger'
+  });
+  if (!ok) return;
+
+  try {
+    const res = await fetch('/api/convocatoria/estado', {
+      method: 'POST', headers: csrfHeaders(),
+      body: JSON.stringify({ activa: nuevoEstado })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      aplicarEstadoConvocatoria(data.activa);
+      showNotif(
+        nuevoEstado ? '✅ Convocatoria abierta — el formulario está activo' : '🔒 Convocatoria cerrada — el formulario está desactivado',
+        nuevoEstado ? 'success' : 'warning'
+      );
+    } else {
+      await showModal({ title: 'Error', message: data.error || 'No se pudo cambiar el estado.', icon: true, type: 'error' });
+    }
+  } catch(e) {
+    await showModal({ title: 'Error', message: 'Error de conexión.', icon: true, type: 'error' });
+  }
+}
+</script>
+
+<script>
+// ==========================================
+// USUARIOS CONECTADOS — heartbeat + polling
+// Actualiza indicadores en tabla Y sidebar
+// ==========================================
+
+async function sendHeartbeat() {
+  try {
+    await fetch('/api/heartbeat', { method: 'POST', headers: csrfHeaders() });
+  } catch(e) { /* silencioso */ }
+}
+
+// Actualiza los puntos verde/rojo en la tabla de usuarios
+function actualizarDotsTabla(activos) {
+  const activosSet = new Set(activos.map(u => u.username));
+  document.querySelectorAll('#tbodyUsuarios tr[data-username]').forEach(row => {
+    const username = row.dataset.username;
+    const dot = row.querySelector('.conexion-dot');
+    const label = row.querySelector('.conexion-label');
+    if (!dot) return;
+    const conectado = activosSet.has(username);
+    dot.style.background = conectado ? '#22c55e' : '#f87171';
+    dot.title = conectado ? 'Conectado' : 'Desconectado';
+    if (label) {
+      label.textContent = conectado ? 'Conectado' : 'Desconectado';
+      label.style.color = conectado ? '#15803d' : 'var(--muted)';
+    }
+  });
+}
+
+// Actualiza el mini-panel de la sidebar
+function actualizarSidebar(activos) {
+  const lista  = document.getElementById('sidebarListaActivos');
+  const badge  = document.getElementById('sidebarBadgeActivos');
+  if (!lista || !badge) return;
+
+  badge.textContent = activos.length;
+
+  if (activos.length === 0) {
+    lista.innerHTML = '<span style="font-size:11px;color:var(--muted);font-style:italic;">Nadie conectado</span>';
+    return;
+  }
+
+  lista.innerHTML = activos.map(u => {
+    const esAdmin = u.rol === 'admin';
+    const color = esAdmin ? '#f59e0b' : '#3b82f6';
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+      <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+      <span style="font-size:11px;font-weight:700;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(u.username)}</span>
+      <span style="background:${color};color:white;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;">${u.rol}</span>
+    </div>`;
+  }).join('');
+}
+
+async function cargarUsuariosActivos() {
+  try {
+    const res = await fetch('/api/usuarios-activos');
+    const data = await res.json();
+    if (!data.ok) return;
+
+    const activos = data.activos || [];
+
+    // Actualizar panel principal (pestaña Usuarios)
+    const lista  = document.getElementById('listaActivos');
+    const badge  = document.getElementById('badgeActivos');
+    badge.textContent = activos.length;
+
+    if (activos.length === 0) {
+      lista.innerHTML = '<span style="font-size:12px;color:#6b7280;font-style:italic;">Ningún usuario activo en este momento</span>';
+    } else {
+      lista.innerHTML = activos.map(u => {
+        const rolColor = u.rol === 'admin'
+          ? { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', badge: '#f59e0b' }
+          : { bg: '#e0f2fe', border: '#38bdf8', text: '#0369a1', badge: '#0284c7' };
+        const segs = u.segundos_inactivo;
+        const tiempoStr = segs < 10 ? 'activo ahora' : `hace ${segs}s`;
+        return `<div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;background:${rolColor.bg};border:1px solid ${rolColor.border};font-size:12px;font-weight:700;color:${rolColor.text};">
+          <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;"></div>
+          ${esc(u.username)}
+          <span style="background:${rolColor.badge};color:white;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:700;">${u.rol}</span>
+          <span style="font-size:10px;font-weight:400;opacity:0.7;">${tiempoStr}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // Actualizar dots en tabla y mini-panel sidebar
+    actualizarDotsTabla(activos);
+    actualizarSidebar(activos);
+
+  } catch(e) { console.error('Error cargando usuarios activos:', e); }
+}
+
+// Heartbeat cada 30s, polling cada 10s
+sendHeartbeat();
+setInterval(sendHeartbeat, 30000);
+setInterval(cargarUsuariosActivos, 10000);
+
+// Cargar inmediatamente
+cargarUsuariosActivos();
 </script>
 
 </body>
